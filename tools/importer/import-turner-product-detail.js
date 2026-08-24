@@ -6,7 +6,9 @@ import tabsParser from './parsers/tabs.js';
 import columnsMediaParser from './parsers/columns-media.js';
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 const parsers = {
   'page-hero': pageHeroParser,
@@ -16,6 +18,7 @@ const parsers = {
 
 const PAGE_TEMPLATE = {
   name: 'turner-product-detail',
+  brand: 'turner-powertrain',
   description: 'Turner product detail: page-hero + intro + tabs + two columns-media CTA bands.',
   urls: [
     'https://www.turner-powertrain.com/en_US/products/c90.html',
@@ -34,7 +37,7 @@ const PAGE_TEMPLATE = {
   ],
 };
 
-const transformers = [cleanupTransformer, dmImagesTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
+const transformers = [cleanupTransformer, dmImagesTransformer, linksTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
 
 function executeTransformers(hookName, element, payload) {
   const enhancedPayload = { ...payload, template: PAGE_TEMPLATE };
@@ -70,6 +73,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
     const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html?$/, '');

@@ -8,7 +8,9 @@ import profilesParser from './parsers/profiles.js';
 // TRANSFORMER IMPORTS
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 const parsers = {
   'page-hero': pageHeroParser,
@@ -17,6 +19,7 @@ const parsers = {
 
 const PAGE_TEMPLATE = {
   name: 'meet-the-team',
+  brand: 'tangent-energy',
   description: 'Interior page: page-hero banner + a profiles block listing 6 leadership team members.',
   urls: ['https://www.tangentenergy.com/en_US/meet-the-team.html'],
   blocks: [
@@ -32,6 +35,7 @@ const PAGE_TEMPLATE = {
 const transformers = [
   cleanupTransformer,
   dmImagesTransformer,
+  linksTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : []),
 ];
 
@@ -88,6 +92,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 

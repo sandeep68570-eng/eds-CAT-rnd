@@ -9,7 +9,9 @@ import cardsPromoParser from './parsers/cards-promo.js';
 // TRANSFORMER IMPORTS
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 // PARSER REGISTRY
 const parsers = {
@@ -21,6 +23,7 @@ const parsers = {
 // PAGE TEMPLATE CONFIGURATION - Embedded from page-templates.json
 const PAGE_TEMPLATE = {
   name: 'homepage',
+  brand: 'tangent-energy',
   description: 'Tangent Energy homepage — hero teaser with video, intro title/copy block, a Why Tangent AMP section with infographic image and video, and a two-up promo cards section linking to About Us and Tangent AMP. Includes site header/navigation and footer.',
   urls: [
     'https://www.tangentenergy.com/en_US.html',
@@ -81,6 +84,7 @@ const PAGE_TEMPLATE = {
 const transformers = [
   cleanupTransformer,
   dmImagesTransformer,
+  linksTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : []),
 ];
 
@@ -163,6 +167,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 

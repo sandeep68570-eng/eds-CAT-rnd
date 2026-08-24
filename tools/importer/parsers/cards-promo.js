@@ -37,6 +37,13 @@ export default function parse(element, { document }) {
     const contentCell = [];
 
     const title = item.querySelector('.inner__title h3, .inner__title h2, h3, h2');
+
+    // SEO/a11y: backfill empty image alt from the card title so the DM
+    // transformer doesn't emit the "Image without alt text" sentinel.
+    if (image && !image.getAttribute('alt') && title) {
+      image.setAttribute('alt', title.textContent.trim());
+    }
+
     if (title) contentCell.push(title);
 
     const description = item.querySelector('.inner__body p, .inner__body, p');

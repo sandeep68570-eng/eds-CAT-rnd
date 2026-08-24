@@ -70,6 +70,12 @@ var CustomImportScript = (() => {
 
   // tools/importer/parsers/resource-cards.js
   function parse2(element, { document: document2 }) {
+    const scope = element.closest(".section-container, .section-container--centered") || element.parentElement || element;
+    if (scope) {
+      scope.querySelectorAll("p").forEach((p) => {
+        if (/^(list-per-page|items-per-page)$/i.test(p.textContent.trim())) p.remove();
+      });
+    }
     let items = Array.from(element.querySelectorAll("ul.list__items.subListItems > li.list__item"));
     if (!items.length) {
       items = Array.from(element.querySelectorAll("li.list__item")).filter(
@@ -87,6 +93,9 @@ var CustomImportScript = (() => {
       const image = item.querySelector("img.list__item-image, figure img, picture img, img");
       const contentCell = [];
       const title = item.querySelector(".list__item-text h3, h3.list__name, h3");
+      if (image && !image.getAttribute("alt") && title) {
+        image.setAttribute("alt", title.textContent.trim());
+      }
       if (title) {
         if (href) {
           const a = document2.createElement("a");
@@ -269,6 +278,10 @@ var CustomImportScript = (() => {
         "noscript",
         "style"
       ]);
+      const NOISE_TOKENS = /^(list-per-page|items-per-page)$/i;
+      element.querySelectorAll("p").forEach((p) => {
+        if (NOISE_TOKENS.test(p.textContent.trim())) p.remove();
+      });
     }
   }
 
@@ -341,9 +354,24 @@ var CustomImportScript = (() => {
     });
   }
 
+  // tools/importer/transformers/tangentenergy-links.js
+  function transform3(hookName, element, payload) {
+    if (hookName !== "afterTransform") return;
+    const brand = payload && payload.template && payload.template.brand;
+    if (!brand) return;
+    element.querySelectorAll("a[href]").forEach((a) => {
+      const href = a.getAttribute("href") || "";
+      const m = href.match(/^\/(en[_-][a-z]{2})(\/[^?#]*?)?(?:\.html?)?([?#].*)?$/i);
+      if (!m) return;
+      const rest = (m[2] || "").replace(/\/$/, "");
+      const suffix = m[3] || "";
+      a.setAttribute("href", `/${brand}/en-us${rest}${suffix}`);
+    });
+  }
+
   // tools/importer/transformers/tangentenergy-sections.js
   var SECTION_MARKER_ATTR = "data-excat-section-id";
-  function transform3(hookName, element, payload) {
+  function transform4(hookName, element, payload) {
     const sections = payload.template.sections || [];
     if (hookName === "beforeTransform") {
       for (let i = sections.length - 1; i >= 0; i -= 1) {
@@ -376,6 +404,50 @@ var CustomImportScript = (() => {
     }
   }
 
+  // tools/importer/seo-utils.js
+  var NOISE = /^(list-per-page|of|play_circle_outline|\d{4}-\d{2}-\d{2})$/i;
+  function firstBodyParagraph(main) {
+    const paras = main.querySelectorAll("p");
+    for (let i = 0; i < paras.length; i += 1) {
+      const text = paras[i].textContent.trim();
+      if (text.length >= 40 && /\s/.test(text) && !NOISE.test(text)) return text;
+    }
+    return "";
+  }
+  function synthesizeFromHeadings(main) {
+    const h1 = main.querySelector("h1");
+    const lead = h1 ? h1.textContent.trim() : "";
+    const items = [...main.querySelectorAll("h3")].map((h) => h.textContent.trim()).filter((t) => t && !NOISE.test(t));
+    if (lead && items.length) return `${lead}: ${items.join(", ")}.`;
+    return lead || "";
+  }
+  function truncate(text, max = 160) {
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).trim()}\u2026`;
+  }
+  function ensureMetaDescription(main, document2) {
+    const metaBlocks = main.querySelectorAll(".metadata");
+    const meta = metaBlocks[metaBlocks.length - 1];
+    if (!meta) return;
+    const rows = [...meta.querySelectorAll(":scope > div")];
+    const hasDescription = rows.some((row2) => {
+      const cells = row2.querySelectorAll(":scope > div");
+      return cells[0] && /^description$/i.test(cells[0].textContent.trim()) && cells[1] && cells[1].textContent.trim().length > 0;
+    });
+    if (hasDescription) return;
+    const desc = truncate(firstBodyParagraph(main) || synthesizeFromHeadings(main));
+    if (!desc) return;
+    const row = document2.createElement("div");
+    const key = document2.createElement("div");
+    key.textContent = "Description";
+    const val = document2.createElement("div");
+    val.textContent = desc;
+    row.append(key, val);
+    meta.append(row);
+  }
+
   // tools/importer/import-turner-knowledge-hub.js
   var parsers = {
     "page-hero": parse,
@@ -384,6 +456,7 @@ var CustomImportScript = (() => {
   };
   var PAGE_TEMPLATE = {
     name: "turner-knowledge-hub",
+    brand: "turner-powertrain",
     description: "Turner knowledge hub: page-hero banner + intro + Latest Articles + resource-cards + columns-media Contact CTA.",
     urls: ["https://www.turner-powertrain.com/en_US/knowledge-hub.html"],
     blocks: [
@@ -397,7 +470,7 @@ var CustomImportScript = (() => {
       { id: "contact", name: "Contact CTA", selector: "#mainContent .teaser--full-width", style: "dark", blocks: ["columns-media"], defaultContent: [] }
     ]
   };
-  var transformers = [transform, transform2, ...PAGE_TEMPLATE.sections.length > 1 ? [transform3] : []];
+  var transformers = [transform, transform2, transform3, ...PAGE_TEMPLATE.sections.length > 1 ? [transform4] : []];
   function executeTransformers(hookName, element, payload) {
     const enhancedPayload = __spreadProps(__spreadValues({}, payload), { template: PAGE_TEMPLATE });
     transformers.forEach((t) => {
@@ -442,6 +515,7 @@ var CustomImportScript = (() => {
       const hr = document2.createElement("hr");
       main.appendChild(hr);
       WebImporter.rules.createMetadata(main, document2);
+      ensureMetaDescription(main, document2);
       WebImporter.rules.transformBackgroundImages(main, document2);
       WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
       const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html?$/, "");

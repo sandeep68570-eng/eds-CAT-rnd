@@ -82,5 +82,13 @@ export default function transform(hookName, element, payload) {
       'noscript',
       'style',
     ]);
+
+    // Stray config/empty-state tokens the DEG list component prints as text
+    // (e.g. "list-per-page"). Remove any paragraph whose entire text is one of
+    // these so it doesn't pollute page content or meta descriptions.
+    const NOISE_TOKENS = /^(list-per-page|items-per-page)$/i;
+    element.querySelectorAll('p').forEach((p) => {
+      if (NOISE_TOKENS.test(p.textContent.trim())) p.remove();
+    });
   }
 }

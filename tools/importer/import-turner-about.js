@@ -5,12 +5,15 @@ import pageHeroParser from './parsers/page-hero.js';
 import timelineParser from './parsers/timeline.js';
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 const parsers = { 'page-hero': pageHeroParser, timeline: timelineParser };
 
 const PAGE_TEMPLATE = {
   name: 'turner-about',
+  brand: 'turner-powertrain',
   description: 'Turner about: page-hero + What-we-do + Our-history (default content) + timeline.',
   urls: ['https://www.turner-powertrain.com/en_US/about-us.html'],
   blocks: [
@@ -24,7 +27,7 @@ const PAGE_TEMPLATE = {
   ],
 };
 
-const transformers = [cleanupTransformer, dmImagesTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
+const transformers = [cleanupTransformer, dmImagesTransformer, linksTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
 
 function executeTransformers(hookName, element, payload) {
   const enhancedPayload = { ...payload, template: PAGE_TEMPLATE };
@@ -60,6 +63,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
     const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html?$/, '');

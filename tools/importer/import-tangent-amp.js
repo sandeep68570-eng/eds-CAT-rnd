@@ -9,7 +9,9 @@ import tabsParser from './parsers/tabs.js';
 // TRANSFORMER IMPORTS
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 const parsers = {
   'page-hero': pageHeroParser,
@@ -19,6 +21,7 @@ const parsers = {
 
 const PAGE_TEMPLATE = {
   name: 'tangent-amp',
+  brand: 'tangent-energy',
   description: 'Tangent AMP: page-hero banner, intro rich text, a What-is-DERMS section (text + columns-media video, grey), and a Why-Choose tabs block.',
   urls: ['https://www.tangentenergy.com/en_US/tangent-amp.html'],
   blocks: [
@@ -41,6 +44,7 @@ const PAGE_TEMPLATE = {
 const transformers = [
   cleanupTransformer,
   dmImagesTransformer,
+  linksTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : []),
 ];
 
@@ -97,6 +101,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 

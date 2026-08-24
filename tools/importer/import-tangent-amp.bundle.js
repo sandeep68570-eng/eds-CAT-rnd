@@ -92,7 +92,49 @@ var CustomImportScript = (() => {
     });
     return nodes;
   }
+  function parseTeaser(element, document2) {
+    if (!element.matches(".teaser") && !element.querySelector(".teaser__text-wrap, .teaser__img-wrap")) {
+      return null;
+    }
+    const textWrap = element.querySelector(".teaser__text-wrap");
+    const imgWrap = element.querySelector(".teaser__img-wrap");
+    if (!textWrap && !imgWrap) return null;
+    const textNodes = [];
+    if (textWrap) {
+      const scope = textWrap.querySelector(".inner") || textWrap;
+      scope.querySelectorAll(":scope h1, :scope h2, :scope h3, :scope h4, :scope p, :scope a[href]").forEach((n) => {
+        if (n.tagName === "A") return;
+        const text = n.textContent.trim();
+        if (!text) return;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return;
+        textNodes.push(n);
+      });
+      const cta = textWrap.querySelector("a[href]");
+      if (cta) {
+        cta.querySelectorAll('i, .material-icons, [aria-hidden="true"]').forEach((g) => g.remove());
+        const label = cta.textContent.trim().replace(/^call/i, "").trim();
+        const a = document2.createElement("a");
+        a.href = cta.getAttribute("href");
+        a.textContent = label || cta.getAttribute("href");
+        const p = document2.createElement("p");
+        p.append(a);
+        textNodes.push(p);
+      }
+    }
+    const img = imgWrap ? imgWrap.querySelector("picture img, img") : null;
+    if (!textNodes.length && !img) return null;
+    return [textNodes.length ? textNodes : "", img || ""];
+  }
   function parse2(element, { document: document2 }) {
+    const teaserCells = parseTeaser(element, document2);
+    if (teaserCells) {
+      const block2 = WebImporter.Blocks.createBlock(document2, {
+        name: "columns-media",
+        cells: [teaserCells]
+      });
+      element.replaceWith(block2);
+      return;
+    }
     const gridCols = element.querySelectorAll(":scope .aem-Grid > .aem-GridColumn--default--6, :scope > .aem-Grid > .aem-GridColumn--default--6");
     let leftCol = gridCols[0] || null;
     let rightCol = gridCols[1] || null;
@@ -188,7 +230,20 @@ var CustomImportScript = (() => {
         // play glyph ("play_circle_outline") and the "<n> of <n>" slide counter.
         ".multimedia__item-count",
         ".youtube-play",
-        "i.material-icons"
+        "i.material-icons",
+        // Build-and-price / MSRP / dealer-pricing modals injected by the DEG
+        // `.list` (product/article grid) component. Pure non-authorable chrome
+        // ("Enter a New Location", "Suggested Retail Price", "Dealer Price").
+        ".modal.build-price",
+        ".modal.msrp-info",
+        "#build-price-modal-productCards",
+        "#dealer-price-info-modal",
+        "#msrp-info-modal",
+        "#msrp-pim-info-modal",
+        ".modal.fade",
+        // Hidden duplicate filter list the DEG list component renders alongside
+        // the visible product/article cards.
+        ".degFilterListItem"
       ]);
     }
     if (hookName === TransformHook.afterTransform) {
@@ -276,9 +331,24 @@ var CustomImportScript = (() => {
     });
   }
 
+  // tools/importer/transformers/tangentenergy-links.js
+  function transform3(hookName, element, payload) {
+    if (hookName !== "afterTransform") return;
+    const brand = payload && payload.template && payload.template.brand;
+    if (!brand) return;
+    element.querySelectorAll("a[href]").forEach((a) => {
+      const href = a.getAttribute("href") || "";
+      const m = href.match(/^\/(en[_-][a-z]{2})(\/[^?#]*?)?(?:\.html?)?([?#].*)?$/i);
+      if (!m) return;
+      const rest = (m[2] || "").replace(/\/$/, "");
+      const suffix = m[3] || "";
+      a.setAttribute("href", `/${brand}/en-us${rest}${suffix}`);
+    });
+  }
+
   // tools/importer/transformers/tangentenergy-sections.js
   var SECTION_MARKER_ATTR = "data-excat-section-id";
-  function transform3(hookName, element, payload) {
+  function transform4(hookName, element, payload) {
     const sections = payload.template.sections || [];
     if (hookName === "beforeTransform") {
       for (let i = sections.length - 1; i >= 0; i -= 1) {
@@ -311,6 +381,42 @@ var CustomImportScript = (() => {
     }
   }
 
+  // tools/importer/seo-utils.js
+  function firstBodyParagraph(main) {
+    const paras = main.querySelectorAll("p");
+    for (let i = 0; i < paras.length; i += 1) {
+      const text = paras[i].textContent.trim();
+      if (text.length >= 40 && /\s/.test(text)) return text;
+    }
+    return "";
+  }
+  function truncate(text, max = 160) {
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).trim()}\u2026`;
+  }
+  function ensureMetaDescription(main, document2) {
+    const metaBlocks = main.querySelectorAll(".metadata");
+    const meta = metaBlocks[metaBlocks.length - 1];
+    if (!meta) return;
+    const rows = [...meta.querySelectorAll(":scope > div")];
+    const hasDescription = rows.some((row2) => {
+      const cells = row2.querySelectorAll(":scope > div");
+      return cells[0] && /^description$/i.test(cells[0].textContent.trim()) && cells[1] && cells[1].textContent.trim().length > 0;
+    });
+    if (hasDescription) return;
+    const desc = truncate(firstBodyParagraph(main));
+    if (!desc) return;
+    const row = document2.createElement("div");
+    const key = document2.createElement("div");
+    key.textContent = "Description";
+    const val = document2.createElement("div");
+    val.textContent = desc;
+    row.append(key, val);
+    meta.append(row);
+  }
+
   // tools/importer/import-tangent-amp.js
   var parsers = {
     "page-hero": parse,
@@ -319,6 +425,7 @@ var CustomImportScript = (() => {
   };
   var PAGE_TEMPLATE = {
     name: "tangent-amp",
+    brand: "tangent-energy",
     description: "Tangent AMP: page-hero banner, intro rich text, a What-is-DERMS section (text + columns-media video, grey), and a Why-Choose tabs block.",
     urls: ["https://www.tangentenergy.com/en_US/tangent-amp.html"],
     blocks: [
@@ -340,7 +447,8 @@ var CustomImportScript = (() => {
   var transformers = [
     transform,
     transform2,
-    ...PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [transform3] : []
+    transform3,
+    ...PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [transform4] : []
   ];
   function executeTransformers(hookName, element, payload) {
     const enhancedPayload = __spreadProps(__spreadValues({}, payload), { template: PAGE_TEMPLATE });
@@ -389,6 +497,7 @@ var CustomImportScript = (() => {
       const hr = document2.createElement("hr");
       main.appendChild(hr);
       WebImporter.rules.createMetadata(main, document2);
+      ensureMetaDescription(main, document2);
       WebImporter.rules.transformBackgroundImages(main, document2);
       WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
       const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html?$/, "");

@@ -4,7 +4,9 @@
 import resourceCardsParser from './parsers/resource-cards.js';
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 // The product grid renders as the DEG `.list` component (ul.list__items >
 // li.list__item), which is exactly what the resource-cards parser handles
@@ -13,7 +15,11 @@ const parsers = { 'resource-cards': resourceCardsParser };
 
 const PAGE_TEMPLATE = {
   name: 'turner-products',
+  brand: 'turner-powertrain',
   description: 'Turner products listing: H1 (default content) + 6-item product cards grid (resource-cards, no description).',
+  // Explicit meta description — this listing page has no prose paragraph, so
+  // provide a deterministic SEO description rather than relying on synthesis.
+  metaDescription: "Explore Turner Powertrain's range of transmissions for off-highway machines: C90, Compact Plus, C115, PG115, PG145 and Bevel Drive.",
   urls: ['https://www.turner-powertrain.com/en_US/products.html'],
   blocks: [
     // Target the visible list, not the hidden degFilterListItem duplicate.
@@ -24,7 +30,7 @@ const PAGE_TEMPLATE = {
   ],
 };
 
-const transformers = [cleanupTransformer, dmImagesTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
+const transformers = [cleanupTransformer, dmImagesTransformer, linksTransformer, ...(PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : [])];
 
 function executeTransformers(hookName, element, payload) {
   const enhancedPayload = { ...payload, template: PAGE_TEMPLATE };
@@ -61,6 +67,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document, PAGE_TEMPLATE.metaDescription);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
     const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html?$/, '');

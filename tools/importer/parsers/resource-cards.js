@@ -29,6 +29,16 @@
  * correct card output (image + linked title + description per card).
  */
 export default function parse(element, { document }) {
+  // Remove DEG list config tokens (e.g. "list-per-page") the component prints
+  // as stray text siblings within the enclosing section, so they don't survive
+  // as page content next to the block.
+  const scope = element.closest('.section-container, .section-container--centered') || element.parentElement || element;
+  if (scope) {
+    scope.querySelectorAll('p').forEach((p) => {
+      if (/^(list-per-page|items-per-page)$/i.test(p.textContent.trim())) p.remove();
+    });
+  }
+
   // Prefer the visible sub-list; fall back to any list__item if markup differs.
   let items = Array.from(element.querySelectorAll('ul.list__items.subListItems > li.list__item'));
   if (!items.length) {
@@ -56,6 +66,13 @@ export default function parse(element, { document }) {
     const contentCell = [];
 
     const title = item.querySelector('.list__item-text h3, h3.list__name, h3');
+
+    // SEO/a11y: give the image real alt from the card title when the source
+    // alt is empty — otherwise the DM transformer substitutes the visible
+    // "Image without alt text" sentinel.
+    if (image && !image.getAttribute('alt') && title) {
+      image.setAttribute('alt', title.textContent.trim());
+    }
     if (title) {
       if (href) {
         // Preserve the article link by wrapping the title text in an anchor.

@@ -10,7 +10,9 @@ import columnsMediaParser from './parsers/columns-media.js';
 // TRANSFORMER IMPORTS (shared, site-wide)
 import cleanupTransformer from './transformers/tangentenergy-cleanup.js';
 import dmImagesTransformer from './transformers/tangentenergy-dm-images.js';
+import linksTransformer from './transformers/tangentenergy-links.js';
 import sectionsTransformer from './transformers/tangentenergy-sections.js';
+import { ensureMetaDescription } from './seo-utils.js';
 
 const parsers = {
   'page-hero': pageHeroParser,
@@ -21,6 +23,7 @@ const parsers = {
 
 const PAGE_TEMPLATE = {
   name: 'turner-home',
+  brand: 'turner-powertrain',
   description: 'Turner Powertrain homepage: page-hero, intro (default content), 6 product cards, Why-Turner feature grid, Knowledge Hub + Contact bands.',
   urls: ['https://www.turner-powertrain.com/en_US.html'],
   blocks: [
@@ -44,6 +47,7 @@ const PAGE_TEMPLATE = {
 const transformers = [
   cleanupTransformer,
   dmImagesTransformer,
+  linksTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : []),
 ];
 
@@ -100,6 +104,7 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+    ensureMetaDescription(main, document);
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 
