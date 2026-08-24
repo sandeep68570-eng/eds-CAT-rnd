@@ -1,0 +1,76 @@
+/*
+ * Design tokens — Turner Powertrain brand.
+ * Same token contract as tokens-tangent-energy.css; only VALUES differ, so the
+ * shared structural CSS and blocks re-theme with zero block-CSS changes.
+ * Injected at load time by scripts.js for /turner-powertrain/… pages.
+ *
+ * Brand palette (extracted from turner-powertrain.com):
+ *   green  #3aaa35  primary/CTA (accent bars, buttons, Learn More)
+ *   blue   #2679b8  standard links
+ *   dark   #1d1d1b  dark section backgrounds (Knowledge Hub, Contact)
+ */
+
+:root {
+  /* colors */
+  --background-color: #fff;
+  --light-color: #eef6ec;         /* light-green product section tint */
+  --dark-color: #1d1d1b;          /* dark section background */
+  --text-color: #000;
+  --link-color: #2679b8;
+  --link-hover-color: #1b5c8f;
+
+  /* brand accents */
+  --brand-navy: #3aaa35;          /* reused token name: Turner's primary is green */
+  --brand-green: #3aaa35;
+  --brand-grey: #4a4a49;
+  --section-grey: #eef6ec;
+
+  /* fonts */
+  --body-font-family: arial, sans-serif;
+  --heading-font-family: arial, sans-serif;
+
+  /* body sizes */
+  --body-font-size-m: 18px;
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
+
+  /* heading sizes (mobile-first) */
+  --heading-font-size-xxl: 40px;
+  --heading-font-size-xl: 32px;
+  --heading-font-size-l: 26px;
+  --heading-font-size-m: 22px;
+  --heading-font-size-s: 18px;
+  --heading-font-size-xs: 16px;
+
+  /* spacing */
+  --section-padding: 48px;
+  --nav-height: 128px;
+
+  /* header (shared block, themed per brand): white bar, dark links, green accent */
+  --nav-bar-bg: #fff;
+  --nav-accent: #3aaa35;
+  --nav-link-color: #1d1d1b;
+  --nav-link-hover-color: #3aaa35;
+  --nav-link-border: rgb(0 0 0 / 12%);
+  --nav-search-border: #c8c8c8;
+
+  /* footer (shared block): dark legal band with light links + green accents */
+  --footer-info-bg: #1d1d1b;
+  --footer-info-color: #fff;
+  --footer-legal-bg: #1d1d1b;
+  --footer-legal-color: #e0e0e0;
+  --footer-link-color: #9ccd97;
+  --footer-copyright-color: #9a9a98;
+}
+
+@media (width >= 900px) {
+  :root {
+    /* heading sizes — H1 58px / H2 hero 54px on source */
+    --heading-font-size-xxl: 58px;
+    --heading-font-size-xl: 40px;
+    --heading-font-size-l: 26px;
+    --heading-font-size-m: 22px;
+    --heading-font-size-s: 18px;
+    --heading-font-size-xs: 16px;
+  }
+}

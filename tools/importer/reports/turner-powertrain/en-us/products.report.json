@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US/products.html",
+  "path": "turner-powertrain/en-us/products",
+  "timestamp": "2026-08-24T05:46:35.547Z",
+  "title": "Products | Turner Power Train",
+  "template": "turner-products",
+  "blocks": [
+    "resource-cards"
+  ]
+}

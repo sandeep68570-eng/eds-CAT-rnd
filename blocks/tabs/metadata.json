@@ -1,0 +1,42 @@
+{
+  "variantName": "tabs",
+  "baseBlock": "tabs",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US/tangent-amp.html",
+    "originPage": "Tangent AMP product page",
+    "blockPosition": "bottom"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "wide",
+    "purpose": "feature",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "one row per tab: tab label + panel content (image + heading + paragraph)",
+    "buttonCount": 0,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "switchable tabbed content panels",
+      "feature comparisons grouped under labeled tabs",
+      "each tab panel containing image + heading + paragraph"
+    ],
+    "notSuitableFor": [
+      "expandable Q&A (use accordion)",
+      "content that must all be visible at once",
+      "grids of uniform repeating items (use cards)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/en-us/tangent-amp",
+      "/turner-powertrain/en-us/products/c90"
+    ],
+    "reuseCount": 2,
+    "lastUsed": "2026-08-24T05:20:00.000Z"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "variantName": "columns-media",
+  "baseBlock": "columns",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US.html",
+    "originPage": "Tangent Energy homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "grey",
+    "density": "wide",
+    "purpose": "feature",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "image column + video embed column",
+    "buttonCount": 0,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "two-up side-by-side media layouts",
+      "image alongside a video embed",
+      "balanced side-by-side content on a grey section"
+    ],
+    "notSuitableFor": [
+      "grids of many uniform repeating items (use cards)",
+      "single-column stacked content"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/en-us",
+      "/en-us/tangent-amp",
+      "/turner-powertrain/en-us",
+      "/turner-powertrain/en-us/products/c90",
+      "/turner-powertrain/en-us/knowledge-hub"
+    ],
+    "reuseCount": 5,
+    "lastUsed": "2026-08-24T05:30:00.000Z"
+  }
+}

@@ -1,0 +1,12 @@
+/*
+ * Default brand tokens (fallback).
+ *
+ * This imports the DEFAULT brand's design tokens so the site is themed even
+ * before scripts.js runs (no flash of unthemed content) and in no-JS contexts.
+ * At runtime, scripts.js detects the active brand from the URL path and injects
+ * that brand's token file (styles/tokens-<brand>.css), which loads after this
+ * and cascade-overrides these values when the brand differs from the default.
+ *
+ * Keep the default here in sync with scripts/brand.js DEFAULT_BRAND.
+ */
+@import url('tokens-tangent-energy.css');

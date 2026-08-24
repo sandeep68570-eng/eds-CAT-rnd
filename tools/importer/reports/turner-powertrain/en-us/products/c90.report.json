@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US/products/c90.html",
+  "path": "turner-powertrain/en-us/products/c90",
+  "timestamp": "2026-08-24T06:43:57.114Z",
+  "title": "C90 | Turner Power Train",
+  "template": "turner-product-detail",
+  "blocks": [
+    "page-hero",
+    "tabs",
+    "tabs",
+    "columns-media",
+    "columns-media"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US.html",
+  "path": "turner-powertrain/en-us",
+  "timestamp": "2026-08-24T06:45:38.864Z",
+  "title": "Turner | Turner Power Train",
+  "template": "turner-home",
+  "blocks": [
+    "page-hero",
+    "cards-promo",
+    "cards-feature",
+    "columns-media",
+    "columns-media"
+  ]
+}

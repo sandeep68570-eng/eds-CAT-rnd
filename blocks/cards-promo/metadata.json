@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-promo",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US.html",
+    "originPage": "Tangent Energy homepage",
+    "blockPosition": "bottom"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "wide",
+    "purpose": "promo",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "image + heading + description + CTA link",
+    "buttonCount": 1,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "promo / navigation cards linking to other pages",
+      "uniform items with image + title + description + Learn More CTA",
+      "product index / listing grids with image + title + Learn More CTA and NO description (description cell is optional/defensive)",
+      "two-up or multi-up feature card rows on white background"
+    ],
+    "notSuitableFor": [
+      "text-only cards without images (use cards no-images variant)",
+      "side-by-side dissimilar media (use columns)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/en-us", "/en-us/about-us", "/turner-powertrain/en-us", "/turner-powertrain/en-us/products"],
+    "reuseCount": 4,
+    "lastUsed": "2026-08-24T00:00:00.000Z"
+  }
+}

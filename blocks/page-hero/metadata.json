@@ -1,0 +1,47 @@
+{
+  "variantName": "page-hero",
+  "baseBlock": "hero",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US/about-us.html",
+    "originPage": "Tangent Energy About Us (interior page)",
+    "blockPosition": "top"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "wide",
+    "purpose": "page-banner",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "uppercase white H1 overlaid left + full-bleed dark navy banner image",
+    "buttonCount": 0,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "interior page banners with a page title overlaid on a dark banner image",
+      "every non-homepage interior page (About Us, Meet the Team, Tangent AMP, etc.)",
+      "uppercase white heading over a dark Scene7 banner"
+    ],
+    "notSuitableFor": [
+      "text-less full-bleed media banners (use hero-media)",
+      "centered hero with body copy and CTAs (use hero)",
+      "light-background page intros"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/en-us/about-us",
+      "/en-us/tangent-amp",
+      "/en-us/customer-segments",
+      "/turner-powertrain/en-us",
+      "/turner-powertrain/en-us/products/c90",
+      "/turner-powertrain/en-us/about-us",
+      "/turner-powertrain/en-us/knowledge-hub"
+    ],
+    "reuseCount": 7,
+    "lastUsed": "2026-08-24T05:30:00.000Z"
+  }
+}

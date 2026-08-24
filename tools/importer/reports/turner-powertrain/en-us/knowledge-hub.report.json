@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US/knowledge-hub.html",
+  "path": "turner-powertrain/en-us/knowledge-hub",
+  "timestamp": "2026-08-24T06:45:48.248Z",
+  "title": "Knowledge Hub | Turner Power Train",
+  "template": "turner-knowledge-hub",
+  "blocks": [
+    "page-hero",
+    "resource-cards",
+    "columns-media"
+  ]
+}

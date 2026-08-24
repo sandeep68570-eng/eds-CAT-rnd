@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://www.tangentenergy.com/en_US/meet-the-team.html",
+  "path": "tangent-energy/en-us/meet-the-team",
+  "timestamp": "2026-08-22T12:54:36.480Z",
+  "title": "Meet the Leadership Team | Tangent Energy Solutions",
+  "template": "meet-the-team",
+  "blocks": [
+    "page-hero",
+    "profiles"
+  ]
+}

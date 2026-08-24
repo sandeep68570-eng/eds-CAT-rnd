@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://www.tangentenergy.com/en_US/customer-segments.html",
+  "path": "tangent-energy/en-us/customer-segments",
+  "timestamp": "2026-08-22T12:54:44.951Z",
+  "title": "Testimonials and Resources | Tangent Energy Solutions",
+  "template": "customer-segments",
+  "blocks": [
+    "page-hero",
+    "resource-cards",
+    "resource-cards"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-feature",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-08-22T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.turner-powertrain.com/en_US.html",
+    "originPage": "Turner Powertrain homepage — 'Why Turner transmissions?' section",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "wide",
+    "purpose": "feature",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "repeating item = image + heading + description (no CTA); borderless, image beside text",
+    "buttonCount": 0,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "feature / value-proposition grids where each item is image + heading + short text",
+      "borderless media-and-text item rows with no per-item CTA",
+      "'why choose us' style repeating benefit items"
+    ],
+    "notSuitableFor": [
+      "promo / navigation cards with an explicit 'Learn More' CTA (use cards-promo)",
+      "article / resource listing cards where the whole card links out (use resource-cards)",
+      "two dissimilar side-by-side media pieces (use columns-media)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/turner-powertrain/en-us"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-22T00:00:00.000Z"
+  }
+}

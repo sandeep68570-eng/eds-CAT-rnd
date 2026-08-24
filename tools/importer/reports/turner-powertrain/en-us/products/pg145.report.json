@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US/products/pg145.html",
+  "path": "turner-powertrain/en-us/products/pg145",
+  "timestamp": "2026-08-24T06:44:01.672Z",
+  "title": "PG145 | Turner Power Train",
+  "template": "turner-product-detail",
+  "blocks": [
+    "page-hero",
+    "tabs",
+    "tabs",
+    "columns-media",
+    "columns-media"
+  ]
+}

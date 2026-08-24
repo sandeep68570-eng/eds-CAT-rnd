@@ -10,7 +10,29 @@ import {
   loadSections,
   loadCSS,
   buildBlock,
+  readBlockConfig,
+  toClassName,
+  toCamelCase,
 } from './aem.js';
+import { getBrand, DEFAULT_BRAND } from './brand.js';
+
+/**
+ * Loads the active brand's design-token stylesheet (MSM theming).
+ * Only the current brand's tokens are fetched — the default brand's tokens are
+ * already applied via brand.css, so we skip the extra request when the active
+ * brand IS the default. Injected in the eager phase to avoid a flash of the
+ * wrong theme.
+ */
+function loadBrandTokens() {
+  const brand = getBrand();
+  if (brand === DEFAULT_BRAND) return; // default tokens already loaded via brand.css
+  if (document.querySelector(`link[data-brand-tokens="${brand}"]`)) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `${window.hlx.codeBasePath}/styles/tokens-${brand}.css`;
+  link.dataset.brandTokens = brand;
+  document.head.append(link);
+}
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -36,6 +58,224 @@ if (window.trustedTypes && window.trustedTypes.createPolicy) {
     createScript: (input) => input,
   });
 }
+
+// --- BEGIN DM/Scene7 auto-block (excat-generated) ---
+
+const DM_BREAKPOINTS = [
+  { media: '(min-width: 600px)', width: 2000 }, // desktop
+  { width: 750 }, // mobile / fallback (no media)
+];
+
+// ---- Canonical helpers (keep in sync with dm-scene7-helpers.js) ----
+function detectDynamicMediaUrl(urlStr) {
+  // Reject relative URLs up front — without this guard, the auto-block
+  // scans every anchor in <main> and a normal site link like
+  // `<a href="/is/image/foo">` would be classified as DM and replaced by
+  // a <picture>. Keep byte-identical with dm-scene7-helpers.js.
+  if (!/^(https?:\/\/|\/\/)/i.test(urlStr)) return false;
+  let u;
+  try { u = new URL(urlStr, 'https://x/'); } catch { return false; }
+  // Scene7 detected by path alone — hostname is irrelevant because
+  // customer sites routinely CNAME a vanity domain to Scene7 (e.g.
+  // media-assets.brand.example).
+  if (u.pathname.startsWith('/is/image/')) {
+    return 'scene7';
+  }
+  if (/^delivery-p\d+-e\d+\.adobeaemcloud\.com$/.test(u.hostname)
+      && u.pathname.startsWith('/adobe/assets/urn:')) {
+    return 'dm-openapi';
+  }
+  return false;
+}
+
+function buildScene7Rendition(src, { width, format }) {
+  // Manipulate the query string verbatim — URL.searchParams percent-
+  // encodes `$`, but Scene7's IS/Image template-parameter syntax
+  // (`$image=`, `$badge=`, etc.) requires the literal `$`. Encoded
+  // form is silently dropped by Scene7's parser, returning the bare
+  // template image instead of the personalized composite.
+  const normalized = src.startsWith('//') ? `https:${src}` : src;
+  const qIdx = normalized.indexOf('?');
+  const base = qIdx >= 0 ? normalized.slice(0, qIdx) : normalized;
+  const query = qIdx >= 0 ? normalized.slice(qIdx + 1) : '';
+  const pairs = query.split('&').filter((p) => p);
+  const filtered = pairs.filter((p) => {
+    const k = p.split('=')[0];
+    return k !== 'wid' && k !== 'fmt';
+  });
+  filtered.push(`wid=${width}`);
+  filtered.push(`fmt=${format}`);
+  return `${base}?${filtered.join('&')}`;
+}
+
+function buildDmOpenApiRendition(src, { width }) {
+  // Synthetic base — see buildScene7Rendition above.
+  const url = new URL(src, 'https://x/');
+  url.searchParams.set('width', String(width));
+  return url.toString();
+}
+
+function findDmOnAnchor(a) {
+  if (!a || typeof a.getAttribute !== 'function') return null;
+  const href = a.getAttribute('href') || '';
+  if (detectDynamicMediaUrl(href)) return { mode: 'unlinked', dmUrl: href };
+  const title = a.getAttribute('title') || '';
+  if (detectDynamicMediaUrl(title)) return { mode: 'linked', dmUrl: title };
+  return null;
+}
+
+// True when the given anchor is the sole child of a markdown-generated
+// <p> wrapper that should be unwrapped so the picture becomes a top-
+// level grid cell. P only — NEVER DIV: EDS block content uses <div>
+// cells (cards/carousel/columns decorators detect image cells via
+// `div.querySelector('picture')`); unwrapping a <div> collapses the
+// block's row structure and stops images rendering inside blocks.
+// Text-node guard: <p>caption <a href="DM">alt</a></p> must NOT be
+// treated as unwrappable — replacing the parent would delete "caption".
+// Comparing trimmed textContent of <p> against the anchor's catches this.
+function isUnwrappableMarkdownParagraph(anchor) {
+  const parent = anchor && anchor.parentElement;
+  if (!parent || parent.tagName !== 'P') return false;
+  if (parent.children.length !== 1 || parent.firstElementChild !== anchor) return false;
+  return parent.textContent.trim() === anchor.textContent.trim();
+}
+
+// Sentinel used by the transformer when source <img> alt is empty. Document
+// view shows the visible cue; we translate it back to alt="" here so screen
+// readers correctly skip decorative images. If an author edits the link
+// text away from the sentinel, their edit becomes the real alt — a11y
+// improves. Must stay byte-identical to dm-scene7-helpers.js EMPTY_ALT_SENTINEL.
+const EMPTY_ALT_SENTINEL = 'Image without alt text';
+
+function linkTextToAlt(linkText) {
+  return linkText === EMPTY_ALT_SENTINEL ? '' : linkText;
+}
+
+// ---- Rendering ----
+function appendSource(picture, { type, srcset, media }) {
+  const source = document.createElement('source');
+  if (type) source.type = type;
+  source.srcset = srcset;
+  if (media) source.setAttribute('media', media);
+  picture.append(source);
+}
+
+function renderScene7Picture(src, alt) {
+  const picture = document.createElement('picture');
+  DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+    type: 'image/webp',
+    srcset: buildScene7Rendition(src, { width: bp.width, format: 'webp' }),
+    media: bp.media,
+  }));
+  DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+    type: 'image/jpeg',
+    srcset: buildScene7Rendition(src, { width: bp.width, format: 'jpg' }),
+    media: bp.media,
+  }));
+  const img = document.createElement('img');
+  img.src = buildScene7Rendition(src, { width: 750, format: 'jpg' });
+  img.alt = alt;
+  img.loading = 'lazy';
+  picture.append(img);
+  return picture;
+}
+
+function renderDmOpenApiPicture(src, alt) {
+  const picture = document.createElement('picture');
+  DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+    srcset: buildDmOpenApiRendition(src, { width: bp.width }),
+    media: bp.media,
+  }));
+  const img = document.createElement('img');
+  img.src = buildDmOpenApiRendition(src, { width: 750 });
+  img.alt = alt;
+  img.loading = 'lazy';
+  picture.append(img);
+  return picture;
+}
+
+function buildDynamicMediaImages(main) {
+  // Anchors carrying DM URLs from the markdown round-trip. The transformer
+  // turns <img DM> into <a href=DM-URL> (or <a href=/page title=DM-URL>
+  // for the linked case); CommonMark's [text](url "title") syntax
+  // survives docx and the title attribute round-trips back to a real
+  // HTML attribute at render time.
+  main.querySelectorAll('a').forEach((a) => {
+    const match = findDmOnAnchor(a);
+    if (!match) return;
+
+    const { mode, dmUrl } = match;
+    // Translate link text back to alt: sentinel ('Image without alt text')
+    // means the source had alt="" — render with alt="" for a11y. Any other
+    // text (including the author's edit of the placeholder) is real alt.
+    const alt = linkTextToAlt(a.textContent.trim());
+    const picture = detectDynamicMediaUrl(dmUrl) === 'scene7'
+      ? renderScene7Picture(dmUrl, alt)
+      : renderDmOpenApiPicture(dmUrl, alt);
+
+    // decorateMain() calls decorateButtons() BEFORE buildAutoBlocks(). At
+    // that point every DM anchor (linked or unlinked) looks like a plain
+    // text link — no <img> yet — so decorateButtons promotes it to a button
+    // and adds `button-container` to its sole-child <p>/<div> parent. The
+    // unwanted border around the rebuilt <picture> is the visible symptom;
+    // for unlinked-in-<div> the leftover `button-container` on a block-cell
+    // <div> can also confuse block decorators that filter on classList.
+    // Strip both classes BEFORE rebuilding so the cleanup covers every
+    // branch below (replaceChildren / replaceWith / parent-replaceWith).
+    // Idempotent — no-op when the classes aren't present.
+    a.classList.remove('button', 'primary', 'secondary');
+    if (a.classList.length === 0) a.removeAttribute('class');
+    const buttonContainer = a.parentElement;
+    if (
+      buttonContainer
+      && buttonContainer.classList.contains('button-container')
+      && buttonContainer.children.length === 1
+    ) {
+      buttonContainer.classList.remove('button-container');
+      if (buttonContainer.classList.length === 0) buttonContainer.removeAttribute('class');
+    }
+
+    if (mode === 'linked') {
+      // Keep the outer <a> and its navigation href. Drop the DM URL from title
+      // (it's been consumed) and replace the anchor's content with the picture.
+      a.removeAttribute('title');
+      a.replaceChildren(picture);
+      return;
+    }
+
+    // Unlinked: the whole anchor is just a carrier for the DM URL.
+    // If it's the markdown-generated <p> wrapper around a standalone
+    // image, unwrap so the picture becomes a top-level grid cell.
+    // NEVER unwrap <div> — those are block-content cells (cards,
+    // carousel, columns); unwrapping them collapses the block's row
+    // structure and decorators can't find their image cells.
+    if (isUnwrappableMarkdownParagraph(a)) {
+      a.parentElement.replaceWith(picture);
+    } else {
+      a.replaceWith(picture);
+    }
+  });
+}
+
+// Register the DM renderer for the Dynamic Media picture helper.
+// The shared wrapper `optimizedPicture` in scripts/dm.js checks this hook and
+// delegates DM URLs to our renderer, so block decorators that call
+// optimizedPicture(img.src, ...) on Scene7 IS/Image template URLs or DM Open
+// API URLs preserve their query parameters instead of having them stripped by
+// the path-only vendored createOptimizedPicture. (This replaces an earlier
+// patch to aem.js — the vendored file is now left pristine per AGENTS.md.)
+//
+// Returning null for non-DM URLs lets the wrapper fall through to the standard
+// path-only optimizer. This is the regression guard for non-DM images.
+window.__dmRender__ = (src, alt) => {
+  const family = detectDynamicMediaUrl(src);
+  if (!family) return null;
+  return family === 'scene7'
+    ? renderScene7Picture(src, alt)
+    : renderDmOpenApiPicture(src, alt);
+};
+
+// --- END DM/Scene7 auto-block ---
 
 /**
  * load fonts.css and set a session storage flag
@@ -74,6 +314,46 @@ function buildWidgetAutoBlocks(main) {
 }
 
 /**
+ * Determines whether the current page is a brand homepage / root.
+ * In the MSM layout the root is `/<brand>/<locale>` (e.g.
+ * `/tangent-energy/en-us`); also treat a bare locale or `/` as root.
+ * @returns {boolean} True when no breadcrumb should be shown.
+ */
+function isHomePage() {
+  const path = window.location.pathname
+    .replace(/^\/content/, '')
+    .replace(/\.plain\.html$/, '')
+    .replace(/\.html$/, '')
+    .replace(/\/$/, '');
+  const segments = path.split('/').filter(Boolean);
+  if (segments.length === 0) return true; // root
+  // bare locale index, e.g. /en-us
+  if (segments.length === 1 && /^[a-z]{2}([-_][a-z]{2})?$/i.test(segments[0])) return true;
+  // brand + locale index, e.g. /tangent-energy/en-us (no interior page)
+  if (segments.length === 2 && /^[a-z]{2}([-_][a-z]{2})?$/i.test(segments[1])) return true;
+  return false;
+}
+
+/**
+ * Builds a site-wide breadcrumb at the top of main on interior pages.
+ * Hidden on the homepage. The breadcrumb block auto-generates its trail from
+ * the URL path and nav labels, so no per-page authoring is required.
+ * @param {Element} main The container element
+ */
+function buildBreadcrumb(main) {
+  if (isHomePage()) return;
+  // Only build on the real page main — header/footer fragments are decorated
+  // via loadFragment→decorateMain with their own detached <main>, which must
+  // NOT receive a breadcrumb.
+  if (main !== document.querySelector('main')) return;
+  if (main.querySelector('.breadcrumb')) return; // already present (authored)
+  const section = document.createElement('div');
+  const block = buildBlock('breadcrumb', { elems: [] });
+  section.append(block);
+  main.prepend(section);
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -96,7 +376,9 @@ function buildAutoBlocks(main) {
         });
       });
     }
+    buildBreadcrumb(main);
     buildWidgetAutoBlocks(main);
+    buildDynamicMediaImages(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -143,6 +425,35 @@ function decorateButtons(main) {
 }
 
 /**
+ * Applies `section-metadata` blocks to their parent section.
+ * The vendored aem.js `decorateSections` omits this step, so `section-metadata`
+ * tables would otherwise be treated as unknown blocks (and 404 on load). This
+ * reproduces the standard EDS boilerplate behavior: read the config, map `style`
+ * values to section classes, and copy other keys onto `section.dataset`.
+ * @param {Element} main The main element
+ */
+function applySectionMetadata(main) {
+  main.querySelectorAll(':scope > .section').forEach((section) => {
+    const metaBlock = section.querySelector(':scope > div > .section-metadata');
+    if (!metaBlock) return;
+    const meta = readBlockConfig(metaBlock);
+    Object.keys(meta).forEach((key) => {
+      if (key === 'style') {
+        const styles = meta.style
+          .split(',')
+          .map((s) => toClassName(s.trim()))
+          .filter((s) => s);
+        styles.forEach((s) => section.classList.add(s));
+      } else {
+        section.dataset[toCamelCase(key)] = meta[key];
+      }
+    });
+    metaBlock.closest('.section-metadata-wrapper')?.remove();
+    metaBlock.remove();
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -151,6 +462,7 @@ export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
+  applySectionMetadata(main);
   decorateBlocks(main);
   decorateButtons(main);
 }
@@ -161,6 +473,7 @@ export function decorateMain(main) {
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
+  loadBrandTokens();
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
   if (main) {

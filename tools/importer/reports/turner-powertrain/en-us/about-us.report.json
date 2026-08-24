@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://www.turner-powertrain.com/en_US/about-us.html",
+  "path": "turner-powertrain/en-us/about-us",
+  "timestamp": "2026-08-24T05:41:54.017Z",
+  "title": "About Us | Turner Power Train",
+  "template": "turner-about",
+  "blocks": [
+    "page-hero",
+    "timeline"
+  ]
+}
