@@ -20,3 +20,4 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 - A PR without a `{branch}--{repo}--{owner}.aem.page/{path}` link is rejected.
 - All committed files are served. Use `.hlxignore`.
 - Skills: `/plugin marketplace add adobe/skills`, then `aem-edge-delivery-services` (24 skills, incl. `docs-search`).
+- Migration conventions & corrections: see `docs/migration-conventions.md` (DM images via `dm.js`, per-brand tokens, block CSS never sets `:root`, parser/SEO fixes, fragment `noindex`).
