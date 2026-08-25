@@ -25,6 +25,14 @@ export default function parse(element, { document }) {
     '.teaser__img-wrap img, .figure_teaserBackgroundImage img, figure img, picture img, img'
   );
 
+  // SEO/a11y: the banner (and any video-poster fallback) often has an empty
+  // source alt. Backfill from the heading so the "image elements have [alt]"
+  // Lighthouse audit passes, rather than shipping alt="".
+  const headingText = heading ? heading.textContent.trim() : '';
+  element.querySelectorAll('img').forEach((img) => {
+    if (!img.getAttribute('alt') && headingText) img.setAttribute('alt', headingText);
+  });
+
   // Empty-block guard.
   if (!heading && !bgImage) {
     element.replaceWith(...element.childNodes);

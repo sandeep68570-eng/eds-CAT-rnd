@@ -49,6 +49,10 @@ var CustomImportScript = (() => {
     const bgImage = element.querySelector(
       ".teaser__img-wrap img, .figure_teaserBackgroundImage img, figure img, picture img, img"
     );
+    const headingText = heading ? heading.textContent.trim() : "";
+    element.querySelectorAll("img").forEach((img) => {
+      if (!img.getAttribute("alt") && headingText) img.setAttribute("alt", headingText);
+    });
     if (!heading && !bgImage) {
       element.replaceWith(...element.childNodes);
       return;
@@ -158,6 +162,30 @@ var CustomImportScript = (() => {
         "noscript",
         "style"
       ]);
+      const NOISE_TOKENS = /^(list-per-page|items-per-page)$/i;
+      element.querySelectorAll("p").forEach((p) => {
+        if (NOISE_TOKENS.test(p.textContent.trim())) p.remove();
+      });
+      const pageH1 = element.querySelector("h1");
+      element.querySelectorAll("img").forEach((img) => {
+        if (img.getAttribute("alt")) return;
+        let src = null;
+        let n = img.closest("div, figure, p") || img;
+        while (n && !src) {
+          let sib = n.previousElementSibling;
+          while (sib) {
+            const h = sib.matches && sib.matches("h1,h2,h3,h4,h5,h6") ? sib : sib.querySelector && sib.querySelector("h1,h2,h3,h4,h5,h6");
+            if (h && h.textContent.trim()) {
+              src = h.textContent.trim();
+              break;
+            }
+            sib = sib.previousElementSibling;
+          }
+          n = n.parentElement;
+        }
+        const alt = src || pageH1 && pageH1.textContent.trim();
+        if (alt) img.setAttribute("alt", alt);
+      });
     }
   }
 
@@ -281,13 +309,21 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/seo-utils.js
+  var NOISE = /^(list-per-page|of|play_circle_outline|\d{4}-\d{2}-\d{2})$/i;
   function firstBodyParagraph(main) {
     const paras = main.querySelectorAll("p");
     for (let i = 0; i < paras.length; i += 1) {
       const text = paras[i].textContent.trim();
-      if (text.length >= 40 && /\s/.test(text)) return text;
+      if (text.length >= 40 && /\s/.test(text) && !NOISE.test(text)) return text;
     }
     return "";
+  }
+  function synthesizeFromHeadings(main) {
+    const h1 = main.querySelector("h1");
+    const lead = h1 ? h1.textContent.trim() : "";
+    const items = [...main.querySelectorAll("h3")].map((h) => h.textContent.trim()).filter((t) => t && !NOISE.test(t));
+    if (lead && items.length) return `${lead}: ${items.join(", ")}.`;
+    return lead || "";
   }
   function truncate(text, max = 160) {
     if (text.length <= max) return text;
@@ -295,7 +331,7 @@ var CustomImportScript = (() => {
     const lastSpace = cut.lastIndexOf(" ");
     return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).trim()}\u2026`;
   }
-  function ensureMetaDescription(main, document2) {
+  function ensureMetaDescription(main, document2, explicit) {
     const metaBlocks = main.querySelectorAll(".metadata");
     const meta = metaBlocks[metaBlocks.length - 1];
     if (!meta) return;
@@ -305,7 +341,7 @@ var CustomImportScript = (() => {
       return cells[0] && /^description$/i.test(cells[0].textContent.trim()) && cells[1] && cells[1].textContent.trim().length > 0;
     });
     if (hasDescription) return;
-    const desc = truncate(firstBodyParagraph(main));
+    const desc = truncate(explicit && explicit.trim() || firstBodyParagraph(main) || synthesizeFromHeadings(main));
     if (!desc) return;
     const row = document2.createElement("div");
     const key = document2.createElement("div");

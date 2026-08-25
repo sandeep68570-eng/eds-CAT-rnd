@@ -90,5 +90,29 @@ export default function transform(hookName, element, payload) {
     element.querySelectorAll('p').forEach((p) => {
       if (NOISE_TOKENS.test(p.textContent.trim())) p.remove();
     });
+
+    // SEO/a11y safety net: no image should ship with an empty alt. For any
+    // <img> the block parsers left with alt="" (e.g. video-poster thumbnails),
+    // backfill from the nearest preceding heading, then the page H1, so the
+    // Lighthouse "image elements have [alt]" audit passes site-wide.
+    const pageH1 = element.querySelector('h1');
+    element.querySelectorAll('img').forEach((img) => {
+      if (img.getAttribute('alt')) return;
+      let src = null;
+      let n = img.closest('div, figure, p') || img;
+      // walk previous siblings/ancestors for the closest heading text
+      while (n && !src) {
+        let sib = n.previousElementSibling;
+        while (sib) {
+          const h = sib.matches && sib.matches('h1,h2,h3,h4,h5,h6')
+            ? sib : (sib.querySelector && sib.querySelector('h1,h2,h3,h4,h5,h6'));
+          if (h && h.textContent.trim()) { src = h.textContent.trim(); break; }
+          sib = sib.previousElementSibling;
+        }
+        n = n.parentElement;
+      }
+      const alt = src || (pageH1 && pageH1.textContent.trim());
+      if (alt) img.setAttribute('alt', alt);
+    });
   }
 }
