@@ -1,58 +1,72 @@
-I want to capture this correctly. There's a real decision about *where* these durable lessons should live, since it changes what I do. Let me confirm before finalizing the plan.# Persisting This Session's Migration Corrections for Future Sessions
+Good idea — let me verify the resource is real and useful before recommending it, rather than guessing.# Adding `aem.live/llms.txt` (and Key Doc Links) to the Repo Docs
 
-## Short answer to your question
-**Yes — AGENTS.md is exactly the right mechanism**, and there are a few complementary places too. Any future session (you or someone else, even from a totally separate machine) reads AGENTS.md automatically at startup and follows its rules. That's how the corrections we made here become durable, shared conventions rather than one-session knowledge.
+## Verified — and yes, it helps
+I fetched `https://www.aem.live/llms.txt`: it's a **valid, curated index of ~34 official EDS documentation links** (developer guides, block collection, performance, metadata, publishing, CDN/redirects/go-live, sidekick, admin/CLI APIs). It's specifically the "for LLMs" entry point Adobe publishes, so it's an ideal thing for an agent to consult during migration.
 
-You picked: **write the detail to a new `docs/migration-conventions.md`, add a short pointer in AGENTS.md, capture all corrections.** Here's the plan.
+**Why it helps here:**
+- A future agent reading AGENTS.md → sees the link → can pull authoritative EDS guidance (e.g. redirects, CDN/go-live, metadata) instead of guessing. It directly backs several of our conventions with the canonical source.
+- It complements (doesn't replace) our repo docs: `llms.txt` = *platform* best practices; `docs/migration-conventions.md` = *this project's* methodology + corrections.
 
-## Where the knowledge will live (and why it persists)
-- **`docs/migration-conventions.md` (new)** — the full, explained conventions with the *why* behind each. Survives across sessions because it's committed to the repo. (Note: `.hlxignore` already excludes `*.md`, so it won't be served on the site — docs-only, correct.)
-- **`AGENTS.md` pointer (one line)** — keeps AGENTS.md terse (matching its current style) but guarantees discovery: every agent reads AGENTS.md first, sees the pointer, and loads the conventions. This is the part that makes future migrations "remember."
-- **Why this works across people/sessions:** these are **committed repo files**, so they travel with the code. (Contrast: the excat skills' *own* internal instructions and any per-session memory are **not** in your repo and won't transfer — only what's committed does.)
+**One caveat (honest):** a link in AGENTS.md is a **pointer, not auto-loaded context** — I can `WebFetch` it on demand, but it isn't pulled in automatically every turn. So it's useful as a "consult this" reference, and I should cite the *specific* deep links our conventions rely on (redirects, CDN/go-live, metadata, performance) rather than only the index, so an agent doesn't have to crawl all 34.
 
-## The corrections to capture (all of them)
-Grouped as they'll appear in `docs/migration-conventions.md`:
+## What I'll add
+- **AGENTS.md** (`## Remember`): one line pointing to `https://www.aem.live/llms.txt` as the canonical EDS doc index.
+- **`docs/migration-conventions.md`**: a short **"Reference docs"** section linking `llms.txt` **plus** the handful of deep links that map to our conventions:
+  - Redirects & go-live → ties to the broken-links / CDN-`noindex` items
+  - Metadata / SEO → ties to meta-description & fragment `noindex`
+  - Performance → ties to the CWV guardrail
+  - Block collection & markup → ties to "reuse before create"
+  - Sidekick / publishing → ties to the content-lifecycle note
 
-**A. Rendering / EDS platform quirks**
-- [ ] DM/Scene7 images render via the **`scripts/dm.js` wrapper** + `window.__dmRender__` auto-block; **`scripts/aem.js` stays pristine** (never edit vendored file).
-- [ ] **`applySectionMetadata()` shim** in scripts.js — vendored `aem.js` `decorateSections` omits section-metadata handling.
-- [ ] **Breadcrumb guard** — only build on the real page `main` (header/footer fragments re-trigger `buildAutoBlocks`); hidden on homepage; labels normalized (`/en_US/`→`/en-us/`, lowercase).
-- [ ] **Code ships on merge to `main`; content publishes separately** — a page can 200 while looking unstyled if code isn't pushed (the live-render issue we hit).
+Let me confirm scope so I write the right amount (this also picks up the earlier "any other best practices?" question):# Add aem.live Doc References + Best-Practice Sections to Migration Docs
 
-**B. Theming / MSM multi-brand**
-- [ ] Per-brand token files `styles/tokens-{brand}.css`; runtime `loadBrandTokens()` injects the active brand's tokens.
-- [ ] `scripts/brand.js` resolves brand by hostname→path→default; `brandRoot()` scopes nav/footer/breadcrumb fragments.
-- [ ] **Block CSS must NOT define `:root` token values** — block CSS loads after the token file and would override the theme. Tokens are the sole source.
+## Confirmed scope
+- **Doc links:** add `llms.txt` **+ curated deep links** (annotated with which convention each backs).
+- **Extra sections:** add **all three** — Broken-links/redirects policy, Pre-PR checklist, A11y + performance guardrails.
 
-**C. Import / parser & transformer fixes**
-- [ ] **CTA band two-column** — `columns-media` `parseTeaser()` branch captures text-col + image-col (fixes "image covers whole section").
-- [ ] **Alt-text backfill** — resource-cards/cards-promo parsers set image `alt` from the card title (kills the "Image without alt text" sentinel).
-- [ ] **Internal-link rewrite** — `tangentenergy-links.js` transformer rewrites source `/en_US/…(.html)` → `/{brand}/en-us/…` (crawlable, no 404s); wire into every import script with a `brand` field.
-- [ ] **Meta descriptions** — `seo-utils.js ensureMetaDescription()` (explicit → first paragraph → headings synth). Known gap: doesn't persist on the Turner products listing page.
-- [ ] **Cleanup selectors** — strip cookie/consent, build-price/MSRP modals, source breadcrumb, `.degFilterListItem`, and stray list tokens (`list-per-page`, `items-per-page`).
+I verified `https://www.aem.live/llms.txt` is a valid, curated index of ~34 official EDS doc links — a legitimate reference for agents. Note: an AGENTS.md link is a *pointer* I can `WebFetch` on demand, not auto-loaded every turn — so citing the specific deep links (not just the index) is what makes it actionable.
 
-**D. Publishing / SEO hygiene**
-- [ ] Nav/footer **fragments** must stay published but be **`noindex` + sitemap-excluded** (metadata sheet `/**/nav`, `/**/footer` → `noindex, nofollow`).
-- [ ] Pre-MSM root pages must be removed from DA + sitemap after a brand-folder restructure (the orphaned-page issue).
+## What I'll write
 
-## Are there other ways to "remember"?
-- **AGENTS.md + committed docs (what we're doing)** → *shared, portable, survives across people/sessions.* Best fit for your goal. ✅
-- **CLAUDE.md** → already just points to AGENTS.md; no need to duplicate.
-- **Encode rules into the code itself** → strongest form of "memory" (a convention that's enforced by the parser/transformer can't be forgotten). Most of our fixes already live in code (`dm.js`, `brand.js`, the parsers/transformers) — the docs explain *why* so nobody undoes them.
-- **Per-session assistant memory** → exists, but it's **local to this environment and not committed**, so it will NOT reach someone else's session. Not suitable for your "someone else uses this tool" requirement.
-- **The excat skills' internal instructions** → I can't edit those, and they're not in your repo, so they can't carry your project-specific corrections. AGENTS.md is the supported override point.
+### 1. AGENTS.md (`## Remember`)
+- One line: canonical EDS docs index → `https://www.aem.live/llms.txt` (agents consult on demand).
 
-## Checklist (execution)
-- [ ] Create **`docs/migration-conventions.md`** with sections A–D above (each rule + short "why" + the file it lives in)
-- [ ] Add a **single pointer line** to `AGENTS.md` under `## Remember`, e.g. *"Migration conventions & corrections: see `docs/migration-conventions.md` (DM images, per-brand tokens, parser/SEO fixes, fragment noindex)."*
-- [ ] Cross-link the new doc to the existing `docs/migration-playbook.md` and `docs/msm-multi-brand.md` (avoid duplicating; point to them)
-- [ ] Keep AGENTS.md terse — detail lives in the doc, not inline
-- [ ] (To actually reach other people) **commit + push** these files so they travel with the repo — same git opt-in blocker as before
-- [ ] Verify: re-read AGENTS.md → pointer resolves → doc renders
+### 2. `docs/migration-conventions.md` — new sections
+- **Reference docs** — `llms.txt` index plus deep links mapped to our conventions:
+  - Redirects & go-live → broken-links / CDN-`noindex`
+  - Metadata / SEO → meta-description & fragment `noindex`
+  - Performance → CWV guardrail
+  - Block collection & markup → "reuse before create"
+  - Sidekick / publishing → content lifecycle
+  - *(deep-link URLs will be taken from the verified `llms.txt`; I'll fetch it again at write time to copy exact paths rather than invent them)*
+- **Broken links / redirects policy** — the concrete ~13 internal 404s we found (`/news`, 6 `/articles/*`, `/contact-us`, `/products/{compact-plus,c115,pg115,bevel}`, `/knowledge-hub/...`); policy = migrate target, neutralize link, or add a redirect (link to the aem.live redirects doc). Flagged as a real UX/crawl defect, not an SEO-score item.
+- **Pre-PR verification checklist** — `npm run lint` clean; preview **both** viewports; compare to original; confirm PR has its `*.aem.page` preview link (AGENTS.md requires it).
+- **A11y + performance guardrails** — a11y: semantic heading order, visible focus, token-driven contrast, `aria` for nav/search/mobile-menu. Perf ("don't regress 98–100"): LCP image handling, three-phase loading (eager/lazy/delayed), avoid render-blocking, keep CLS ~0.
+
+## Checklist
+
+### A. Write the additions
+- [ ] Re-fetch `llms.txt` at write time; copy **exact** deep-link URLs (no invented paths)
+- [ ] Add **Reference docs** section to `docs/migration-conventions.md`, each link annotated with the convention it supports
+- [ ] Add **Broken links / redirects policy** with the concrete ~13-URL worked example
+- [ ] Add **Pre-PR verification checklist**
+- [ ] Add **A11y + performance guardrails**
+- [ ] Add the one-line `llms.txt` pointer to AGENTS.md `## Remember` (keep it terse)
+- [ ] Phrase everything as imperative, agent-followable rules (rule + *why* + source link)
+
+### B. Verify & land
+- [ ] `npm run lint` (docs-only change → should stay green; confirms nothing else broke)
+- [ ] Commit the doc + AGENTS.md changes
+- [ ] **Push** — blocked by the GitHub git opt-in (same as prior commits)
+
+### C. Still-open, higher priority than docs (unchanged)
+- [ ] **CI red:** `.eslintrc.js` `__dmRender__` allow-list commit (`eddba9d`) still not on origin → `npm run lint` fails in CI. Land first.
+- [ ] Four local commits (ESLint fix, alt fix, `/content` normalization, methodology docs) are **committed but unpushed** — need the opt-in or your own push.
 
 ## Notes
-- This makes the corrections **followed by default in future migrations**: any agent reads AGENTS.md → sees the pointer → applies the conventions.
-- The only thing that stops other people from getting these is if they're **not committed/pushed** — so the git push (opt-in) matters here too, just like for the code deploy.
-- I won't touch `.agents/settings.json` or any plugin here — this is purely docs + an AGENTS.md pointer.
+- **Verification discipline:** I'll copy deep-link URLs straight from the live `llms.txt` at write time so no link is fabricated.
+- **Docs vs. capability:** these links make an agent *able to consult* authoritative guidance; they don't auto-load or change tooling.
+- **Biggest lever remains the unpushed commits** — more docs don't turn CI green or render the live site; the push does.
+- Docs-only change; I won't touch `.agents/settings.json` or plugins.
 
-> **Prepared in Plan mode — no files changed.** Approve and switch to Execute, and I'll create `docs/migration-conventions.md` and add the one-line AGENTS.md pointer (and, if the GitHub opt-in is on, commit/push so other sessions inherit them).
+> **Prepared in Plan mode — no files changed.** Approve + switch to Execute and I'll: re-fetch `llms.txt`, add the Reference-docs + broken-links + pre-PR + a11y/perf sections to `docs/migration-conventions.md`, and add the `llms.txt` pointer to AGENTS.md. Pushing to the PR still needs the git opt-in or your own push.

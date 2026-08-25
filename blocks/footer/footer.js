@@ -1,6 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { brandRoot } from '../../scripts/brand.js';
+import { brandRoot, normalizeBrandLinks } from '../../scripts/brand.js';
 
 /**
  * loads and decorates the footer
@@ -13,6 +13,9 @@ export default async function decorate(block) {
   let fragment = await loadFragment(`${brandRoot()}/footer`);
   if (!fragment) fragment = await loadFragment(footerPath);
   if (!fragment) return;
+
+  // normalize brand-relative links/assets (/content/<brand>/… → env-correct path)
+  normalizeBrandLinks(fragment);
 
   // decorate footer DOM
   block.textContent = '';

@@ -1,16 +1,111 @@
-# Migration Conventions & Corrections
+# Migration Methodology & Conventions
 
-Hard-won corrections from migrating the Tangent Energy and Turner Powertrain
-brands to EDS. **Read this before migrating another page or brand in this repo.**
-Each rule records *what to do* and *why* — the "why" is what stops a future
-session (or another person) from silently undoing the fix.
+**Read this before migrating a new site, brand, or page in this repo.** It has
+two parts:
+
+1. **Migration Methodology** — the reusable *how* for onboarding new sites and
+   scaling to thousands of pages without proliferating one-off tooling. This is
+   the part an agent should apply on every new migration.
+2. **Corrections (A–D)** — hard-won specific fixes with the *why* behind each,
+   so they are not silently undone.
 
 Companion docs: [`migration-playbook.md`](./migration-playbook.md) (end-to-end
 workflow, commands, file map) and [`msm-multi-brand.md`](./msm-multi-brand.md)
-(brand folders, clean URLs, theming). This file is the *corrections* layer on
-top of those.
+(brand folders, clean URLs, theming). Don't duplicate those — link to them.
 
 ---
+
+# Part 1 — Migration Methodology (scaling to many sites/pages)
+
+## 1. Scaling model: templates + a shared block library (READ FIRST)
+
+**You do not create tooling per page.** A site of 10,000 pages maps to a handful
+of *templates* and a shared set of *blocks*. Get this right and the file count
+stays flat as pages grow.
+
+- **Import scripts are per-TEMPLATE, not per-page.** `import-<template>.js`
+  migrates a whole page *pattern* (e.g. every product-detail page), driven by a
+  URL list. Adding 1,000 pages of an existing type = adding URLs, **not** files.
+- **Parsers are per-BLOCK and reused across brands/pages.**
+  `parsers/resource-cards.js` runs anywhere that block appears. A new brand
+  mostly **reuses** existing parsers.
+- **Transformers are site-wide and brand-parameterized.** They take a `brand`
+  field (e.g. `tangentenergy-links.js`) and are written once, reused everywhere.
+
+**Reuse before create (hard rule):** before writing a new parser, block, import
+script, or transformer, check whether an existing one already covers the
+pattern. Only create a new *block variant* when the structure is genuinely new;
+never duplicate a block per brand. Classify pages into templates first; the
+number of import scripts should track the number of distinct *page types*, not
+pages or brands.
+
+## 2. MSM multi-brand setup (new brand onboarding)
+
+- Content lives per brand at `/content/{brand}/{locale}/…`. Each brand maps its
+  folder to its own site root in production (clean URLs, no `/content`, no brand
+  segment). See [`msm-multi-brand.md`](./msm-multi-brand.md).
+- To add a brand: add its slug to `BRANDS` and its production domain(s) to
+  `BRAND_HOSTS` in `scripts/brand.js`; add a `styles/tokens-{brand}.css`; create
+  its nav/footer fragments. `brandRoot()` handles per-environment fragment
+  paths.
+- **Store clean, brand-relative links in fragments — never bake `/content` into
+  hrefs.** Fragments authored with `/content/{brand}/…` are normalized at
+  runtime by `normalizeBrandLinks()` (in `brand.js`, called by header/footer):
+  local dev keeps the `/content/{brand}` prefix; production strips it to root.
+  Baking a fixed prefix into stored hrefs is wrong because the *same* string
+  can't be literally correct in both environments — resolve it at runtime.
+
+## 3. Component (block) reuse first
+
+Survey the shared block library before building anything. Prefer an existing
+block/variant; extend a parser rather than fork a block. New brands should be
+almost entirely **theme + content** over the *same* blocks — that's the point of
+the shared repo. If you're writing brand-specific block CSS or a near-duplicate
+block, stop and reuse instead.
+
+## 4. Token-based theming (brand skins over shared blocks)
+
+- One `styles/tokens-{brand}.css` per brand defines the brand's design tokens
+  (colors, fonts, nav/footer vars). `loadBrandTokens()` loads **only the active
+  brand's** tokens at runtime — no cross-brand bloat.
+- Derive token values from the source site (brand extraction), not guesses.
+- **Block CSS consumes `var(--token)`; it must never define `:root` token
+  values** (see Correction B — load order makes block `:root` override the
+  theme). Themes are applied purely by swapping the token file.
+
+## 5. SEO / Lighthouse checklist (every page)
+
+- Meta **description** present (see Correction C); **alt** on every image
+  (backfill from title/heading — Corrections C and page-hero); **canonical** and
+  crawlable, clean internal links (no source `/en_US`, no dead 404s).
+- **Staging `noindex` is host-imposed, not a defect.** `*.aem.page`/`*.aem.live`
+  send `x-robots-tag: noindex` + `robots.txt: Disallow: /` by design, which
+  fails Lighthouse's heavily-weighted "not blocked from indexing" audit and
+  **caps the SEO score in the 60s–70s on staging**. This lifts only on the
+  production CDN domain (correct `x-forwarded-host`, configured at
+  tools.aem.live). Measure real SEO on production, not the PR's staging run; a
+  low staging SEO number with all other audits green is expected.
+- Fragments (`/**/nav`, `/**/footer`) → `noindex` + sitemap-excluded
+  (Correction D).
+
+## 6. Responsive (mobile / desktop) discipline
+
+- Design desktop first, then verify mobile explicitly — don't assume.
+- Mobile-only content is hidden on desktop and shown via `@media`; desktop-only
+  likewise. Never let one viewport's markup leak into the other.
+- Verify **both** viewports (e.g. 1440×900 and 375×812) before sign-off —
+  nav/footer especially (hamburger, accordion, stacking, touch targets).
+
+## 7. Deploy model (code vs content)
+
+- **Code** (blocks, `scripts/`, `styles/`) ships via **git → merge to `main`**;
+  CI runs `npm run lint` on it. **Content** publishes via **Document Authoring**
+  separately. A page can return `200` yet look unstyled if the code isn't merged
+  (see Correction A). Always confirm both tracks when a page looks wrong.
+
+---
+
+# Part 2 — Corrections (specific fixes, with the *why*)
 
 ## A. Rendering / EDS platform quirks
 
@@ -64,6 +159,17 @@ top of those.
   branded) until the `:root` blocks were removed. Blocks may *consume*
   `var(--token)` freely; they must never *define* token values. Tokens are the
   sole source, defined only in `tokens-{brand}.css`.
+
+- **Fragment links must be normalized at runtime, not baked with `/content`.**
+  Nav/footer fragments are authored with `/content/{brand}/…` hrefs and img
+  srcs. `normalizeBrandLinks(fragment)` in `scripts/brand.js` (called by
+  `header.js` and `footer.js` before decorating) rewrites the `/content/{brand}`
+  prefix to `brandRoot() + rest`: local dev keeps `/content/{brand}` (so
+  `aem up` serves it), production strips it to the site root (`/en-us/…`).
+  *Why:* the same stored href can't be literally correct both locally and in
+  production, so it must be resolved per environment. External/anchor URLs are
+  left untouched. If production URLs show a stray `/content/…`, this normalizer
+  isn't being called on that fragment.
 
 ---
 
@@ -128,6 +234,96 @@ re-imports stay correct.
   Document Authoring and cleared from the sitemap; otherwise the SEO check keeps
   auditing stale/duplicate paths. Verify with the sitemap + a direct fetch
   (should be `404`), not only the DA source list.
+
+---
+
+## E. Broken internal links / redirects policy
+
+Migration leaves links to source pages that were never migrated. Left as-is
+they 404 (bad UX and crawl quality — though *not* a Lighthouse SEO-*score*
+audit). For every internal link, the target must **exist**, be **neutralized**,
+or be **redirected**.
+
+- **Audit after each migration:** crawl every published page's internal `<a
+  href>` and flag any that 404. As of this session the open 404s were:
+  - `tangent-energy/en-us/news`
+  - `tangent-energy/en-us/articles/blogs/{delivering-excellence-energy-data-and-savings, is-your-organization-a-good-fit-or-eaas, reliability-and-resiliency-how-co-ops-can-achieve-both-affordably}`
+  - `tangent-energy/en-us/articles/testimonials/{danvers-electrics-strategic-energy-storage-solution, on-site-energy-solutions-for-linamar-manufacturing-facilities, shaping-the-future-of-distributed-energy-for-liberty-new-hampshire}`
+  - `turner-powertrain/en-us/contact-us`
+  - `turner-powertrain/en-us/products/{compact-plus, c115, pg115, bevel}`
+  - `turner-powertrain/en-us/knowledge-hub/from-transmission-concept-to-production`
+- **Resolution options (pick per link):** (1) migrate the target page; (2)
+  remove/neutralize the link if the page won't exist; (3) add a redirect. EDS
+  redirects are configured per the platform docs (see Reference docs →
+  Redirects), not in the repo.
+- *Why:* dead internal links erode navigation and crawl quality and often
+  indicate missing pages the stakeholder still expects.
+
+## F. Accessibility (beyond alt)
+
+A11y sits at ~95–96; keep it there by convention, not luck.
+
+- **Semantic heading order** — one `h1` per page; don't skip levels.
+- **Visible focus states** — never remove focus outlines; ensure keyboard focus
+  is visible on links, buttons, nav, search.
+- **Contrast from tokens** — text/background contrast must meet WCAG AA; drive
+  colors from `tokens-{brand}.css` so brand theming stays accessible.
+- **ARIA for interactive chrome** — nav toggle, search, and the mobile menu need
+  correct roles/labels/`aria-expanded` (the header block already wires these).
+- **Every image has meaningful `alt`** — see Corrections C and the page-hero
+  backfill; decorative images get empty alt intentionally.
+
+## G. Performance / Core Web Vitals (don't regress)
+
+Scores are 98–100 — the goal is to *not regress*.
+
+- **LCP image** — the hero/first image should load eagerly and be appropriately
+  sized; everything below the fold stays lazy.
+- **Three-phase loading** — respect `loadEager` → `loadLazy` → `loadDelayed`;
+  don't move heavy work earlier than it needs to be.
+- **Avoid render-blocking** — no synchronous third-party scripts in the critical
+  path; defer/delay non-essential JS.
+- **Keep CLS ~0** — set width/height (or aspect-ratio) on media so nothing
+  shifts as it loads.
+- See Reference docs → Web Performance for the platform's guidance.
+
+## H. Pre-PR verification checklist
+
+Run before opening or updating a PR:
+
+- [ ] `npm run lint` is clean (CI runs exactly this — JS + CSS).
+- [ ] Preview the changed pages in **both** viewports (desktop ~1440 and mobile
+      ~375) — nav/footer, hero, cards.
+- [ ] Compare against the original site for content/visual parity.
+- [ ] The PR description includes a working
+      `{branch}--{repo}--{owner}.aem.page/{path}` preview link (AGENTS.md
+      requires it; a PR without one is rejected).
+- [ ] Confirm code vs content: if a page looks wrong, check whether the **code**
+      is merged to `main` *and* the **content** is published to DA (separate
+      tracks — see Section A / Methodology 7).
+
+## Reference docs (authoritative EDS guidance)
+
+Consult these for platform-level questions; they back the conventions above.
+The canonical index is Adobe's **llms.txt**:
+
+- **Docs index (for agents):** https://www.aem.live/llms.txt
+- **Redirects** → https://www.aem.live/docs/redirects — backs Section E (broken
+  links) and the production-domain go-live.
+- **Go-Live Checklist** → https://www.aem.live/docs/go-live-checklist — CDN /
+  `x-forwarded-host` setup that lifts the staging `noindex` SEO cap (Methodology 5).
+- **Bulk Metadata** → https://www.aem.live/docs/bulk-metadata — metadata sheet
+  for descriptions and the `/**/nav`, `/**/footer` → `noindex` rows (Section D).
+- **Indexing** → https://www.aem.live/developer/indexing — query-index / sitemap
+  behaviour (Section D, orphaned pages).
+- **Web Performance ("Keeping it 100")** → https://www.aem.live/developer/keeping-it-100 — backs Section G.
+- **Block Collection** → https://www.aem.live/developer/block-collection and
+  **Markup / Sections** → https://www.aem.live/developer/markup-sections-blocks —
+  back "reuse before create" (Methodology 1, 3) and defensive decoration.
+- **Using Sidekick** → https://www.aem.live/docs/sidekick — authoring/publishing.
+- **Admin API** → https://www.aem.live/docs/admin.html and **aem CLI** →
+  https://www.aem.live/developer/cli-reference — preview/publish/unpublish and
+  local dev.
 
 ---
 

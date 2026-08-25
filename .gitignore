@@ -13,3 +13,6 @@ helix-importer-ui
 !AGENTS.md
 migration-work/navigation-validation/
 migration-work/footer-validation/
+
+# Generated importer bundles — regenerate with aem-import-bundle.sh on demand
+tools/importer/*.bundle.js

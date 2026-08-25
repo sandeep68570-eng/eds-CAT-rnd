@@ -1,6 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { brandRoot } from '../../scripts/brand.js';
+import { brandRoot, normalizeBrandLinks } from '../../scripts/brand.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
@@ -99,6 +99,9 @@ export default async function decorate(block) {
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
   let fragment = await loadFragment(`${brandRoot()}/nav`);
   if (!fragment) fragment = await loadFragment(navPath);
+
+  // normalize brand-relative links/assets (/content/<brand>/… → env-correct path)
+  normalizeBrandLinks(fragment);
 
   // decorate nav DOM
   block.textContent = '';

@@ -73,3 +73,41 @@ export function brandRoot(brand = getBrand()) {
   // Production: brand folder mapped to root → fragments at the site root.
   return '';
 }
+
+/**
+ * Normalize brand-relative links/assets inside a fetched fragment.
+ *
+ * Fragments (nav, footer) are authored with absolute repo paths that include
+ * the `/content/<brand>` prefix, e.g. `/content/turner-powertrain/en-us`.
+ * That prefix is only correct for local `aem up`; in production the brand
+ * folder is mapped to the site root, so the stored `/content/<brand>` prefix
+ * must be dropped. Rewriting to `brandRoot() + <rest>` yields the correct URL
+ * in BOTH environments:
+ *   - local dev:   `/content/<brand>` + `/en-us` → `/content/<brand>/en-us`
+ *   - production:  ``                 + `/en-us` → `/en-us`
+ *
+ * Applies to <a href> and <img src>. External/asset/anchor URLs are untouched.
+ *
+ * @param {Element} container fragment root whose links/assets to normalize
+ */
+export function normalizeBrandLinks(container) {
+  if (!container) return;
+  // Match a leading `/content/<knownBrand>` prefix, capturing the brand and rest.
+  const brandAlt = BRANDS.join('|');
+  const prefix = new RegExp(`^/content/(${brandAlt})(/.*|$)`, 'i');
+  const rewrite = (value) => {
+    const m = value.match(prefix);
+    if (!m) return null;
+    const brand = m[1].toLowerCase();
+    const rest = m[2] || '';
+    return `${brandRoot(brand)}${rest}`;
+  };
+  container.querySelectorAll('a[href]').forEach((a) => {
+    const next = rewrite(a.getAttribute('href') || '');
+    if (next !== null) a.setAttribute('href', next);
+  });
+  container.querySelectorAll('img[src]').forEach((img) => {
+    const next = rewrite(img.getAttribute('src') || '');
+    if (next !== null) img.setAttribute('src', next);
+  });
+}
