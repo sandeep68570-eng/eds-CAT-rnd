@@ -39,6 +39,107 @@ never duplicate a block per brand. Classify pages into templates first; the
 number of import scripts should track the number of distinct *page types*, not
 pages or brands.
 
+## 1a. Template = STRUCTURE, not blocks (the classification rule)
+
+**A template is keyed on a page's STRUCTURE — its section skeleton / layout
+regions and their order — NOT on which blocks (components) it contains.** This
+is the single most important rule for keeping template (and importer) count low.
+
+**Definition of "structure":** the ordered set of layout regions on the page —
+e.g. `hero-banner → intro → repeating-content-grid → CTA-band`. Structure is
+about the *arrangement of regions*, not the component that fills each region.
+
+**Decision rule (apply mechanically):**
+
+- Blocks **added, removed, replaced, or substituted** on a page whose region
+  layout still matches an existing template → **SAME template. Reuse it.**
+  (A missing block is simply not emitted; a swapped block occupies the same
+  region.) This is backed by defensive decoration — *"Authors omit and add
+  cells. Decorate defensively"* (AGENTS.md).
+- Create a **new template ONLY when the page's structural shape genuinely
+  differs** (different region layout/flow), not because a block changed.
+
+**A new block is NOT a new template.** Building a new component (e.g. a
+`carousel`) is *block* work — build the block + its parser once, reuse forever.
+It does **not** spawn a template. You add the new block to an existing
+template's block list.
+
+**Worked examples:**
+
+- *Homepage vs about-us vs FAQ* → different **structures** → different templates. ✅
+- *Product pages that share a structure but use different blocks* → **one**
+  product template (reused across all of them). ✅
+- *A page shaped like about-us but with different blocks* (e.g. its FAQ section
+  replaced by a carousel) → **reuse the about-us template**; if the carousel is
+  new, build the carousel block once and add it to that template's block list.
+  **Do not** create a new template. ✅
+
+**Before creating any template, ask: "Is the page's STRUCTURE new?"** If the
+answer is no, reuse — regardless of how the blocks differ.
+
+> A structure-first re-classification of the existing templates (and where the
+> current set over-templated) is in [`template-audit.md`](./template-audit.md):
+> the 10 current templates collapse to ~3 structures (landing / interior /
+> listing).
+
+## 1b. Report-first gate (MANDATORY before any migration)
+
+When asked to migrate a page, a set of pages, or a whole site, **produce a
+Template Reuse Report FIRST and STOP for approval** before generating any
+importer, template entry, or content. Never silently spin up a new template.
+
+The report must contain:
+
+1. **Page → Template map** — which existing template each URL reuses, with a
+   one-line **structural** rationale for the match.
+2. **Templates: reused vs new** — list reused templates; for any **new**
+   template, give the **structural justification** (what region layout is
+   genuinely different). No new template without this justification.
+3. **Blocks to CREATE** — new components not in the shared library, and why each
+   is unavoidable (no existing block covers it).
+4. **Blocks USED per page** — which existing/new block each page renders.
+5. **Reuse scorecard** — templates reused vs new; blocks reused vs new.
+
+End the report with: *"Approve to proceed, or adjust the classification."* Only
+after approval do you build importers / run the import.
+
+## 1c. What "template" means in EDS (and do we need `tools/`?)
+
+**EDS has no server-side template engine** — there are no editable templates and
+no template inheritance like classic AEM. "Template" is used in two senses:
+
+- **Migration-time template** (what `tools/importer/page-templates.json` holds):
+  a *page-type classification* keyed on structure (§1a). It exists only to tell
+  the importer which parser/blocks to apply to which URLs. **Reuse:** one entry
+  ⇒ many source URLs ⇒ many output pages.
+- **Runtime "template"** = just a **document made of blocks**. Consistency across
+  same-type pages comes from: **shared blocks** (the real unit of reuse) +
+  **CSS/design tokens** (one theme skins a brand) + **metadata / bulk-metadata**
+  (defaults applied **by path pattern** across many pages). There is no template
+  object to instantiate.
+
+**Do we need the `tools/` folder?** It is **build-time migration tooling**, not
+runtime code (and is now excluded from serving via `.hlxignore`). Whether you
+need it depends on how content arrives:
+
+| Scenario | Need `tools/`? |
+|----------|----------------|
+| Authoring fresh in Document Authoring (no legacy site) | **No** — authors create docs directly. |
+| Bulk-migrating an existing site (1000s of legacy pages) | **Yes** — the importer *is* the automation: one script + a URL list converts thousands of pages deterministically. |
+| Adobe's hosted Modernization Agent (AEMaaCS) | Handled by the cloud service — no in-repo `tools/`. Separate product. |
+
+**Docs vs. tooling:** documentation (this file, AGENTS.md) captures the *why/how*
+so an agent makes good decisions; parsers/transformers are the *deterministic
+machine* that transforms N pages identically and repeatably. For a large
+migration, docs **complement** the tooling — they do not **replace** it. An LLM
+re-deriving each page from prose is slower, non-deterministic, and unverifiable
+at scale. Drop `tools/` only when authoring fresh or using the hosted agent.
+
+> **Scale proof (this repo):** ~16 pages across 2 brands are covered by 10
+> import scripts + 9 parsers + 4 transformers, most of them shared. File count
+> tracks *page types*, not *pages*: a single `turner-product-detail` script
+> already covers multiple product URLs; add 1,000 more and it stays one script.
+
 ## 2. MSM multi-brand setup (new brand onboarding)
 
 - Content lives per brand at `/content/{brand}/{locale}/…`. Each brand maps its
