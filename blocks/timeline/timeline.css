@@ -1,0 +1,110 @@
+/* Block: timeline -- vertical company-history timeline.
+   Turner "Our history": a list of year + description milestones down a vertical
+   spine, cards alternating left/right on desktop. Colors come from brand tokens
+   (green spine/markers via --brand-green; the light-green section tint is
+   applied at the section level via section-metadata). */
+
+.timeline .timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* The vertical spine. Mobile: runs down the left edge. */
+.timeline .timeline-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  width: 2px;
+  background-color: var(--brand-green, #3aaa35);
+}
+
+.timeline .timeline-entry {
+  position: relative;
+  padding: 0 0 32px 36px;
+}
+
+.timeline .timeline-entry:last-child {
+  padding-bottom: 0;
+}
+
+/* Marker dot sitting on the spine. */
+.timeline .timeline-marker {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--brand-green, #3aaa35);
+  border: 3px solid var(--background-color, #fff);
+  box-sizing: border-box;
+}
+
+/* Prominent year label. */
+.timeline .timeline-year {
+  font-family: var(--heading-font-family, arial, sans-serif);
+  font-size: var(--heading-font-size-l, 26px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-color, #000);
+  margin: 0 0 8px;
+}
+
+.timeline .timeline-body {
+  color: var(--text-color, #000);
+}
+
+.timeline .timeline-body p {
+  margin: 0;
+  font-size: var(--body-font-size-s, 16px);
+  line-height: 1.4;
+}
+
+/* Desktop: center the spine and alternate cards left/right (checkerboard). */
+@media (width >= 900px) {
+  .timeline .timeline-list::before {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .timeline .timeline-entry {
+    width: 50%;
+    padding: 0 40px 48px;
+    box-sizing: border-box;
+  }
+
+  .timeline .timeline-entry:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Odd entries on the left, text right-aligned toward the spine. */
+  .timeline .timeline-entry:nth-child(odd) {
+    left: 0;
+    text-align: right;
+  }
+
+  /* Even entries on the right. */
+  .timeline .timeline-entry:nth-child(even) {
+    left: 50%;
+    text-align: left;
+  }
+
+  /* Marker sits on the central spine for every entry. */
+  .timeline .timeline-entry .timeline-marker {
+    top: 4px;
+  }
+
+  .timeline .timeline-entry:nth-child(odd) .timeline-marker {
+    left: auto;
+    right: -8px;
+  }
+
+  .timeline .timeline-entry:nth-child(even) .timeline-marker {
+    left: -8px;
+    right: auto;
+  }
+}

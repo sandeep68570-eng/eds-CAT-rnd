@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://www.tangentenergy.com/en_US/tangent-amp.html",
+  "path": "en-us/tangent-amp",
+  "timestamp": "2026-08-21T12:20:08.062Z",
+  "title": "Tangent AMP | Tangent Energy Solutions",
+  "template": "tangent-amp",
+  "blocks": [
+    "page-hero",
+    "columns-media",
+    "tabs"
+  ]
+}

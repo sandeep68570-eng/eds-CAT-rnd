@@ -1,0 +1,38 @@
+{
+  "variantName": "hero-media",
+  "baseBlock": "hero",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US.html",
+    "originPage": "Tangent Energy homepage",
+    "blockPosition": "top"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "wide",
+    "purpose": "hero",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "background image + optional heading",
+    "buttonCount": 0,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "full-width top-of-page banners with a large image",
+      "dark-background brand hero banners",
+      "image-forward landing page heroes"
+    ],
+    "notSuitableFor": [
+      "text-only intro headers with no background image",
+      "light minimal heroes with prominent CTAs"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/en-us"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-21T00:00:00.000Z"
+  }
+}

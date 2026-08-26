@@ -1,0 +1,86 @@
+/* Block: resource-cards -- article/resource card grid.
+   Values extracted from source (tangentenergy.com list--blog article cards):
+   3-up flex grid, white cards, thin border, cover-cropped image on top,
+   H3 title (#333), short description (#000, 14px). */
+
+.resource-cards > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+/* Each card. Source card = white bg + 1px solid rgb(107, 53, 41) border,
+   no radius, no shadow. Image top, text body below (natural column flow). */
+.resource-cards > ul > li {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  border: 1px solid rgb(107 53 41);
+  overflow: hidden;
+}
+
+.resource-cards > ul > li.resource-cards-linked {
+  cursor: pointer;
+}
+
+/* Image cell: cover-cropped thumbnail on top. Source figure ~355x173. */
+.resource-cards .resource-cards-card-image {
+  line-height: 0;
+}
+
+.resource-cards .resource-cards-card-image picture,
+.resource-cards .resource-cards-card-image img {
+  display: block;
+  width: 100%;
+}
+
+.resource-cards .resource-cards-card-image img {
+  aspect-ratio: 355 / 173;
+  object-fit: cover;
+}
+
+/* Text body: source padding 29px 30px. */
+.resource-cards .resource-cards-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 29px 30px;
+}
+
+/* Title: source H3 20px / 700 / line-height 20px / color rgb(51,51,51),
+   margin 0 0 8px. The whole title is the article link. */
+.resource-cards .resource-cards-card-body h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 20px;
+  color: rgb(51 51 51);
+}
+
+.resource-cards .resource-cards-card-body h3 a:any-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.resource-cards .resource-cards-card-body h3 a:hover {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+/* Description: source P 14px / line-height 16px / color #000, margin 5px 0 24px. */
+.resource-cards .resource-cards-card-body p {
+  margin: 5px 0 24px;
+  font-size: 14px;
+  line-height: 16px;
+  color: rgb(0 0 0);
+}
+
+/* Desktop: 3 cards per row (source row is 3-up at ~1130px wide). */
+@media (width >= 900px) {
+  .resource-cards > ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

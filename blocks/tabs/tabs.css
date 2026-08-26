@@ -1,0 +1,118 @@
+/* Block: tabs -- values extracted from source computed styles (tangent-amp) */
+
+/* ----- Tab strip ----- */
+.tabs .tabs-list {
+  display: flex;
+  gap: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.tabs .tabs-list button.tabs-tab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  padding: 8px 6px;
+  min-height: 64px;
+  background-color: var(--light-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: normal;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.tabs .tabs-list button.tabs-tab + button.tabs-tab {
+  border-left: 0;
+}
+
+.tabs .tabs-tab p {
+  margin: 0;
+}
+
+/* Active tab: white face, navy bottom accent, downward navy triangle */
+.tabs .tabs-list button.tabs-tab[aria-selected='true'] {
+  background-color: var(--background-color);
+  border-bottom: 5px solid var(--brand-navy);
+  cursor: default;
+}
+
+.tabs .tabs-list button.tabs-tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  bottom: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid var(--brand-navy);
+}
+
+/* ----- Panels ----- */
+.tabs .tabs-panel {
+  margin-top: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.tabs .tabs-panel[aria-hidden='true'] {
+  display: none;
+}
+
+.tabs .tabs-panel-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.tabs .tabs-panel-content {
+  padding: 0 15px;
+  text-align: left;
+}
+
+.tabs .tabs-panel-content p {
+  margin: 0 0 16px;
+  font-size: var(--body-font-size-xs);
+  line-height: 1.45;
+  color: var(--text-color);
+}
+
+.tabs .tabs-panel-content p strong {
+  font-weight: 700;
+}
+
+/* ----- Desktop: image + text side by side ----- */
+@media (width >= 900px) {
+  .tabs .tabs-panel > div {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 0 10px;
+  }
+
+  .tabs .tabs-panel-image {
+    flex: 0 0 300px;
+    max-width: 300px;
+  }
+
+  .tabs .tabs-panel-content {
+    flex: 1 1 auto;
+  }
+
+  .tabs .tabs-list button.tabs-tab {
+    padding: 0 20px;
+    font-size: var(--body-font-size-s);
+    min-height: 70px;
+  }
+}

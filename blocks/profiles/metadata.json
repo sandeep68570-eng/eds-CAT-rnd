@@ -1,0 +1,39 @@
+{
+  "variantName": "profiles",
+  "baseBlock": "profiles",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US/meet-the-team.html",
+    "originPage": "Meet the Leadership Team",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "team",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "per row: headshot image + (H2 name + bold role + bio paragraphs + optional LinkedIn link + optional email link)",
+    "buttonCount": 2,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "team / leadership / staff bio listings",
+      "one-profile-per-row layouts with headshot, name, role, bio and action links",
+      "author / contributor listings with contact links"
+    ],
+    "notSuitableFor": [
+      "uniform promo/navigation cards (use cards or cards-promo)",
+      "generic side-by-side media/text (use columns)",
+      "grids of small icon+text items"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/en-us/meet-the-team"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-21T00:00:00.000Z"
+  }
+}

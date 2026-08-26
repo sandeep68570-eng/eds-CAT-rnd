@@ -1,20 +1,126 @@
+/* Shared footer. Band colors come from per-brand token files (tokens-<brand>.css),
+   which define every --footer-* token for both brands:
+     --footer-info-bg / --footer-info-color   top (company/social) band
+     --footer-legal-bg / --footer-legal-color bottom (links/copyright) band
+     --footer-link-color                       legal link color
+     --footer-copyright-color                  copyright text color
+   No :root defaults here — block CSS loads AFTER the token file, so defaults
+   here would override the brand tokens in the cascade. */
+
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  font-size: 14px;
+  font-family: Arial, var(--body-font-family), sans-serif;
 }
 
-footer .footer > div {
-  margin: auto;
-  max-width: 1200px;
-  padding: 40px 24px 24px;
+footer .footer {
+  display: flex;
+  flex-direction: column;
 }
 
 footer .footer p {
   margin: 0;
 }
 
-@media (width >= 900px) {
-  footer .footer > div {
-    padding: 40px 32px 24px;
+/* Both bands span full width; backgrounds paint edge-to-edge and inner
+   content is centered to a max width via the inline padding. */
+footer .footer-info,
+footer .footer-legal {
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: max(24px, calc((100% - 1440px) / 2 + 24px));
+}
+
+/* ---- Top band: company info + social ---- */
+footer .footer-info {
+  background-color: var(--footer-info-bg);
+  color: var(--footer-info-color);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px 24px;
+  padding-block: 32px 16px;
+}
+
+footer .footer-info-text {
+  flex: 1 1 auto;
+}
+
+footer .footer-info p {
+  color: var(--footer-info-color);
+  line-height: 1.5;
+}
+
+/* social icons */
+footer .footer-social {
+  flex: 0 0 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+footer .footer-social a {
+  display: inline-flex;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+footer .footer-social img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* ---- Bottom band: nav links + copyright ---- */
+footer .footer-legal {
+  background-color: var(--footer-legal-bg);
+  color: var(--footer-legal-color);
+  padding-block: 24px 32px;
+}
+
+footer .footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+}
+
+footer .footer-links a {
+  color: var(--footer-link-color);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+footer .footer-links a:hover,
+footer .footer-links a:focus {
+  text-decoration: underline;
+}
+
+footer .footer-social a:hover {
+  opacity: 1;
+}
+
+footer .footer-copyright {
+  margin-top: 16px;
+  color: var(--footer-copyright-color);
+  font-size: 13px;
+}
+
+/* ---- Mobile ---- */
+@media (width < 900px) {
+  footer .footer-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  footer .footer-links {
+    flex-direction: column;
+    gap: 12px;
   }
 }

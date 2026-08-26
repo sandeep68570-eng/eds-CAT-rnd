@@ -1,0 +1,71 @@
+/*
+ * Design tokens — Tangent Energy brand.
+ * Only VALUES live here; all structural CSS (layout, blocks, type scale rules)
+ * is in the shared styles.css and block CSS, which reference these var()s.
+ * The active brand's token file is injected at load time by scripts.js
+ * (see loadBrandTokens), so only one brand's tokens ship per page.
+ */
+
+:root {
+  /* colors */
+  --background-color: #fff;
+  --light-color: #f8f8f8;
+  --dark-color: #001e62;
+  --text-color: #212529;
+  --link-color: #0067b8;
+  --link-hover-color: #001e62;
+
+  /* brand accents */
+  --brand-navy: #001e62;
+  --brand-grey: #616161;
+  --section-grey: #f8f8f8;
+
+  /* fonts */
+  --body-font-family: arial, sans-serif;
+  --heading-font-family: arial, sans-serif;
+
+  /* body sizes */
+  --body-font-size-m: 18px;
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
+
+  /* heading sizes (mobile-first) */
+  --heading-font-size-xxl: 40px;
+  --heading-font-size-xl: 32px;
+  --heading-font-size-l: 26px;
+  --heading-font-size-m: 22px;
+  --heading-font-size-s: 18px;
+  --heading-font-size-xs: 16px;
+
+  /* spacing */
+  --section-padding: 48px;
+  --nav-height: 128px;
+
+  /* header (shared block, themed per brand): grey bar, light links, navy accent */
+  --nav-bar-bg: #616161;
+  --nav-accent: #001e62;
+  --nav-link-color: #e0e0e0;
+  --nav-link-hover-color: #fff;
+  --nav-link-border: rgb(255 255 255 / 15%);
+  --nav-search-border: #e0e0e0;
+
+  /* footer (shared block): grey info band + light-grey legal band */
+  --footer-info-bg: #9e9e9e;
+  --footer-info-color: #fff;
+  --footer-legal-bg: #f8f8f8;
+  --footer-legal-color: #212529;
+  --footer-link-color: #0067b8;
+  --footer-copyright-color: #757575;
+}
+
+@media (width >= 900px) {
+  :root {
+    /* heading sizes — H1 hero 58px on source */
+    --heading-font-size-xxl: 58px;
+    --heading-font-size-xl: 40px;
+    --heading-font-size-l: 26px;
+    --heading-font-size-m: 22px;
+    --heading-font-size-s: 18px;
+    --heading-font-size-xs: 16px;
+  }
+}

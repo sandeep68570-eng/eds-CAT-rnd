@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://www.tangentenergy.com/en_US/about-us.html",
+  "path": "en-us/about-us",
+  "timestamp": "2026-08-21T11:27:23.693Z",
+  "title": "About Us | Energy as a Service | Tangent Energy | Tangent Energy Solutions",
+  "template": "about-us",
+  "blocks": [
+    "page-hero",
+    "cards-promo"
+  ]
+}

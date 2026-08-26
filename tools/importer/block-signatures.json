@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "purpose": "Source-markup signatures -> target block (+ variant). Consulted at scope time to decide block REUSE deterministically. Structure decides the TEMPLATE; these signatures decide the BLOCKS.",
+    "rules": [
+      "A signature QUALIFIES a region as a block family. It does NOT address the region — the per-page `instances` selector (positional, e.g. :nth-of-type) is still captured per page.",
+      "One block, many variants: a source class maps to a block NAME + optional VARIANT. In DA the block is authored as `Block` or `Block (variant)`; there is never a separate block per variant.",
+      "If a region matches NO signature here, it is a NEW-BLOCK candidate — flag it in the Template Reuse Report and get approval before building.",
+      "A matched family does not guarantee behavior parity: a genuinely new variant (e.g. a real carousel) may still need block work even though it maps to an existing family.",
+      "Seed entries below are verified against real DEG/Caterpillar markup on tangentenergy.com, turner-powertrain.com, and mak-global.com. Add new mappings under the brands' shared DEG platform or the `_todo` area."
+    ],
+    "verifiedOn": ["tangentenergy.com", "turner-powertrain.com", "mak-global.com"],
+    "generated": "2026-08-26"
+  },
+
+  "hero": [
+    { "match": ".teaser.media-youtube.teaser--hero", "variant": "media", "note": "hero with video/media backdrop (landing-style)" },
+    { "match": ".teaser--hero", "variant": "page", "note": "interior banner: heading overlaid on image" }
+  ],
+
+  "hero-media": [
+    { "match": ".teaser.media-youtube.teaser--hero", "note": "CURRENT dedicated block (homepage). Go-forward: fold into `hero` (media) variant." }
+  ],
+  "page-hero": [
+    { "match": ".teaser--hero", "note": "CURRENT dedicated block (interior pages). Go-forward: fold into `hero` (page) variant." }
+  ],
+
+  "cards": [
+    { "match": ".editorial-card__item", "variant": "promo", "note": "promo/navigation cards: image + H3 + description + CTA" },
+    { "match": ".cards-feature .editorial-card__item", "variant": "feature", "note": "feature cards (same DOM as promo; styling variant)" },
+    { "match": "ul.list__items.subListItems", "variant": "resource", "note": "article/resource cards; whole card clickable" },
+    { "match": ".list--blog", "variant": "resource", "note": "blog/testimonial list -> resource cards" }
+  ],
+
+  "cards-promo": [
+    { "match": ".editorial-card__item", "note": "CURRENT dedicated block. Go-forward: fold into `cards` (promo)." }
+  ],
+  "cards-feature": [
+    { "match": ".cards-feature .editorial-card__item", "note": "CURRENT dedicated block (byte-identical to cards-promo). Go-forward: fold into `cards` (feature)." }
+  ],
+  "resource-cards": [
+    { "match": "ul.list__items.subListItems", "note": "CURRENT dedicated block (adds whole-card link). Go-forward: fold into `cards` (resource)." },
+    { "match": ".list--blog", "note": "blog/testimonial variant of the list component" }
+  ],
+
+  "columns-media": [
+    { "match": ".teaser--checkerboard", "variant": "checkerboard", "note": "two-column text+image band (parseTeaser)" },
+    { "match": ".teaser--full-width", "variant": "full-width", "note": "full-width CTA band (parseTeaser)" }
+  ],
+
+  "tabs": [
+    { "match": ".tabs", "note": "tabbed content panel" }
+  ],
+
+  "timeline": [
+    { "match": ".section-container--centered:has(.deg-timeline)", "note": "chronological milestone list. VERIFY exact source class per site." }
+  ],
+
+  "profiles": [
+    { "match": "#mainContent div.section-container--centered:has(.profile, .team-member)", "note": "team/leadership profile grid. VERIFY exact source class per site." }
+  ],
+
+  "_todo_add_your_selectors_here": {
+    "note": "Add source-class -> block(+variant) mappings you know from the CMS. Examples of the shape:",
+    "examples": [
+      { "block": "hero", "match": ".hero-carousel", "variant": "carousel", "status": "TODO — needs a carousel behavior in the hero block before use" },
+      { "block": "<existing-or-new-block>", "match": ".<source-class>", "variant": "<optional>", "status": "unverified" }
+    ]
+  }
+}

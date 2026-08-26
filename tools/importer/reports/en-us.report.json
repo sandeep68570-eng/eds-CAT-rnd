@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://www.tangentenergy.com/en_US.html",
+  "path": "en-us",
+  "timestamp": "2026-08-21T12:20:14.931Z",
+  "title": "Our Solutions | Tangent Energy Solutions",
+  "template": "homepage",
+  "blocks": [
+    "hero-media",
+    "columns-media",
+    "cards-promo"
+  ]
+}

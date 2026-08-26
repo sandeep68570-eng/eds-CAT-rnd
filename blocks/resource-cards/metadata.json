@@ -1,0 +1,42 @@
+{
+  "variantName": "resource-cards",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-08-21T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.tangentenergy.com/en_US/customer-segments.html",
+    "originPage": "Tangent Energy Testimonials and Resources (customer-segments)",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "wide",
+    "purpose": "resource-article-cards",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "3-column grid of bordered article cards; each card = thumbnail image + H3 title + short description; the whole card links to an article page",
+    "buttonCount": 0,
+    "imageCount": 3
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "grids of article/resource cards that link to detail pages",
+      "testimonial and blog listing rows (image + title + teaser description)",
+      "any 'title + description' card grid where the whole card is a link"
+    ],
+    "notSuitableFor": [
+      "promo/navigation cards with a large image and an explicit 'Learn More' CTA (use cards-promo)",
+      "text-only cards with no image",
+      "interior-page banner headings (use page-hero)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/en-us/customer-segments",
+      "/turner-powertrain/en-us/knowledge-hub"
+    ],
+    "reuseCount": 2,
+    "lastUsed": "2026-08-24T05:30:00.000Z"
+  }
+}

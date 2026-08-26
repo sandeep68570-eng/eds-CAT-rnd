@@ -1,0 +1,11 @@
+{
+  "type": "da",
+  "sites": {
+    "eds-CAT-rnd": {
+      "previewOrg": "sandeep68570-eng",
+      "previewSite": "eds-CAT-rnd",
+      "contentHostUrl": "https://content.da.live/sandeep68570-eng/eds-cat-rnd/",
+      "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json"
+    }
+  }
+}

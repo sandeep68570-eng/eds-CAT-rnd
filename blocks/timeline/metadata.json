@@ -1,0 +1,45 @@
+{
+  "variantName": "timeline",
+  "baseBlock": "timeline",
+  "version": "1.0.0",
+  "created": "2026-08-24T05:35:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.turner-powertrain.com/en_US/about-us.html",
+    "originPage": "Turner About Us — 'Our history' section",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light-green",
+    "density": "spacious",
+    "purpose": "company-history-timeline",
+    "imagePattern": "noimg"
+  },
+  "contentPattern": {
+    "structure": "repeating rows of year + description; rendered as a vertical timeline with a green spine and markers, cards alternating left/right on desktop",
+    "buttonCount": 0,
+    "imageCount": 0,
+    "rowsPerEntry": 1,
+    "cellsPerRow": 2
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "company history / 'Our history' milestone lists",
+      "any chronological year + short-description sequence",
+      "roadmap or 'how it works' step sequences with a short label + text"
+    ],
+    "notSuitableFor": [
+      "cards with images (use cards / resource-cards)",
+      "expandable Q&A (use accordion)",
+      "single side-by-side content rows (use columns)"
+    ]
+  },
+  "authoring": {
+    "model": "One row per entry. Cell 1 = year (prominent marker label). Cell 2 = description paragraph. The section heading (e.g. 'Our history') is authored as default content above the block.",
+    "note": "Brand-new block, not derived from a vanilla Block Collection block. DA project — no _timeline.json modeling file."
+  },
+  "usage": {
+    "pagesUsing": ["/turner-powertrain/en-us/about-us"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-24T05:35:00.000Z"
+  }
+}

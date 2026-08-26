@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://www.tangentenergy.com/en_US.html"
+      ],
+      "coverageGaps": [],
+      "description": "Tangent Energy homepage — hero teaser with video, intro title/copy block, a Why Tangent AMP section with infographic image and video, and a two-up promo cards section linking to About Us and Tangent AMP. Includes site header/navigation and footer.",
+      "blocks": [
+        {
+          "name": "hero-media",
+          "instances": [
+            "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.teaser.auth-track.media-youtube.teaser--hero.teaser--no-accent-bar.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.section-container.section-container--centered.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(3)"
+          ]
+        },
+        {
+          "name": "cards-promo",
+          "instances": [
+            "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.section-container.section-container--centered.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(4)"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "hero",
+          "name": "Hero",
+          "selector": "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.teaser.auth-track.media-youtube.teaser--hero.teaser--no-accent-bar.aem-GridColumn.aem-GridColumn--default--12",
+          "style": null,
+          "blocks": [
+            "hero-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "intro-title",
+          "name": "Intro",
+          "selector": "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.deg-title.section-padding.aem-GridColumn.aem-GridColumn--default--12",
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.deg-title.section-padding.aem-GridColumn.aem-GridColumn--default--12 > div.title.auth-track > div.container > div.title__wrapper"
+          ]
+        },
+        {
+          "id": "section-3",
+          "name": "Why Tangent AMP",
+          "selector": "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.section-container.section-container--centered.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(3)",
+          "style": "grey",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-4",
+          "name": "Promo Cards",
+          "selector": "#mainContent > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(2) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.section-container.section-container--centered.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(4)",
+          "style": null,
+          "blocks": [
+            "cards-promo"
+          ],
+          "defaultContent": []
+        }
+      ]
+    },
+    {
+      "name": "about-us",
+      "urls": [
+        "https://www.tangentenergy.com/en_US/about-us.html"
+      ],
+      "coverageGaps": [],
+      "description": "Interior page: page-hero banner, intro paragraph + video (default content), and a three-up promo cards row (cards-promo).",
+      "blocks": [
+        {
+          "name": "page-hero",
+          "instances": [
+            ".teaser--hero"
+          ]
+        },
+        {
+          "name": "cards-promo",
+          "instances": [
+            ".editorial-card--3-col"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "meet-the-team",
+      "urls": [
+        "https://www.tangentenergy.com/en_US/meet-the-team.html"
+      ],
+      "coverageGaps": [],
+      "description": "Interior page: page-hero banner + a profiles block listing 6 leadership team members (headshot, name, role, bio, LinkedIn/email links).",
+      "blocks": [
+        {
+          "name": "page-hero",
+          "instances": [
+            "#mainContent div.teaser.teaser--hero.media-youtube"
+          ]
+        },
+        {
+          "name": "profiles",
+          "instances": [
+            "#mainContent div.section-container.section-container--centered"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "customer-segments",
+      "urls": [
+        "https://www.tangentenergy.com/en_US/customer-segments.html"
+      ],
+      "coverageGaps": [],
+      "description": "Testimonials and Resources: page-hero banner + two resource-cards sections (Testimonials, Blogs), each an H2 heading plus a grid of article cards.",
+      "blocks": [
+        {
+          "name": "page-hero",
+          "instances": [
+            ".teaser--hero"
+          ]
+        },
+        {
+          "name": "resource-cards",
+          "instances": [
+            "#mainContent div.section-container--centered:has(h2.heading-size-large) .list--blog"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tangent-amp",
+      "urls": [
+        "https://www.tangentenergy.com/en_US/tangent-amp.html"
+      ],
+      "coverageGaps": [],
+      "description": "Tangent AMP: page-hero banner, intro rich text (default content), a What-is-DERMS section (text + columns-media video, grey), and a Why-Choose tabs block.",
+      "blocks": [
+        {
+          "name": "page-hero",
+          "instances": [
+            ".teaser--hero"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".section-container.section-container--centered.background-spacing-no-top:has(.deg-title)"
+          ]
+        },
+        {
+          "name": "tabs",
+          "instances": [
+            ".section-container.section-container--centered:has(.tabs)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "turner-home",
+      "urls": [
+        "https://www.turner-powertrain.com/en_US.html"
+      ],
+      "coverageGaps": [],
+      "description": "Turner Powertrain homepage: page-hero banner, intro heading+copy (default content), 6 product cards (cards-promo), a Why-Turner feature grid (cards-feature), and Knowledge Hub + Contact dark bands (columns-media).",
+      "blocks": [
+        {
+          "name": "page-hero",
+          "instances": [
+            "#mainContent > div.responsivegrid:nth-of-type(2) > div > div.teaser.auth-track.media-youtube:nth-of-type(1)"
+          ]
+        },
+        {
+          "name": "cards-promo",
+          "instances": [
+            "#mainContent > div.responsivegrid:nth-of-type(2) > div > div.section-container.section-container--centered.section-padding-no-bottom:nth-of-type(3)"
+          ]
+        },
+        {
+          "name": "cards-feature",
+          "instances": [
+            "#mainContent > div.responsivegrid:nth-of-type(2) > div > div.section-container.section-container--centered:nth-of-type(4) > div.cmp-container > div.section-container__inner > div.responsivegrid > div > div.section-container.section-container--centered:nth-of-type(1)"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            "#mainContent > div.responsivegrid:nth-of-type(2) > div > div.section-container.section-container--centered:nth-of-type(4) > div.cmp-container > div.section-container__inner > div.responsivegrid > div > div.section-container.section-container--centered:nth-of-type(2)",
+            "#mainContent > div.responsivegrid:nth-of-type(2) > div > div.teaser.auth-track.media-youtube:nth-of-type(5)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "turner-products",
+      "urls": ["https://www.turner-powertrain.com/en_US/products.html"],
+      "coverageGaps": [],
+      "description": "Turner products listing: H1 (default content) + a 6-item product cards grid (resource-cards, DEG .list component, image + title + Learn More, no description).",
+      "blocks": [
+        { "name": "resource-cards", "instances": ["#mainContent ul.list__items.subListItems"] }
+      ]
+    },
+    {
+      "name": "turner-product-detail",
+      "urls": [
+        "https://www.turner-powertrain.com/en_US/products/c90.html",
+        "https://www.turner-powertrain.com/en_US/products/pg145.html"
+      ],
+      "coverageGaps": [],
+      "description": "Turner product detail: page-hero + intro (default content) + tabs (features/benefits/dependability) + two columns-media CTA bands (download spec, get in touch).",
+      "blocks": [
+        { "name": "page-hero", "instances": ["#mainContent .teaser--hero"] },
+        { "name": "tabs", "instances": ["#mainContent .tabs"] },
+        { "name": "columns-media", "instances": ["#mainContent .teaser--checkerboard", "#mainContent .teaser--full-width"] }
+      ]
+    },
+    {
+      "name": "turner-about",
+      "urls": ["https://www.turner-powertrain.com/en_US/about-us.html"],
+      "coverageGaps": [],
+      "description": "Turner about: page-hero + What-we-do (default content) + Our-history (default content) + timeline (7 year/description entries).",
+      "blocks": [
+        { "name": "page-hero", "instances": ["#mainContent > div.responsivegrid:nth-of-type(2) > div > div.teaser.auth-track.media-youtube.teaser--hero"] },
+        { "name": "timeline", "instances": ["#mainContent > div.responsivegrid:nth-of-type(4) > div > div.section-container.section-container--centered:nth-of-type(2)"] }
+      ]
+    },
+    {
+      "name": "turner-knowledge-hub",
+      "urls": ["https://www.turner-powertrain.com/en_US/knowledge-hub.html"],
+      "coverageGaps": [],
+      "description": "Turner knowledge hub: page-hero (banner) + intro + Latest Articles (default content) + resource-cards + columns-media Contact CTA.",
+      "blocks": [
+        { "name": "page-hero", "instances": ["#mainContent .teaser--hero"] },
+        { "name": "resource-cards", "instances": ["#mainContent ul.list__items.subListItems"] },
+        { "name": "columns-media", "instances": ["#mainContent .teaser--full-width"] }
+      ]
+    }
+  ]
+}

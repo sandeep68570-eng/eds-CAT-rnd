@@ -1,0 +1,44 @@
+/* Breadcrumb block — matches tangentenergy.com: 14px trail, near-black links,
+   slash separators, transparent background, centered to the content width. */
+
+.breadcrumb {
+  font-size: 14px;
+  font-family: Arial, var(--body-font-family), sans-serif;
+}
+
+.breadcrumb .breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb .breadcrumb-list li {
+  display: flex;
+  align-items: center;
+  color: #191919;
+}
+
+/* slash separator between crumbs */
+.breadcrumb .breadcrumb-list li + li::before {
+  content: '/';
+  margin-right: 8px;
+  color: #767676;
+}
+
+.breadcrumb .breadcrumb-list a {
+  color: #191919;
+  text-decoration: none;
+}
+
+.breadcrumb .breadcrumb-list a:hover,
+.breadcrumb .breadcrumb-list a:focus {
+  text-decoration: underline;
+}
+
+.breadcrumb .breadcrumb-list [aria-current='page'] {
+  color: #767676;
+}
