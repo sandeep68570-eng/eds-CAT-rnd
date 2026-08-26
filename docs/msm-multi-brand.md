@@ -19,6 +19,38 @@ content/
     nav.plain.html  footer.plain.html  images/
 ```
 
+## Multi-locale brands (e.g. Perkins: en_GB + zh_CN)
+
+Some brands ship more than one locale. The layout nests the **locale under the
+brand**, so one brand folder holds all its locales:
+
+```
+content/
+  perkins/
+    en-gb.plain.html               # brand homepage, en-GB
+    en-gb/<page>.plain.html         # en-GB interior pages
+    en-gb/nav.plain.html  en-gb/footer.plain.html
+    zh-cn.plain.html               # brand homepage, zh-CN
+    zh-cn/<page>.plain.html         # zh-CN interior pages
+    zh-cn/nav.plain.html  zh-cn/footer.plain.html
+    images/                         # shared brand assets
+```
+
+Notes:
+- **Locale in the path, brand in the host.** Production still maps the brand
+  folder to the site root, so URLs are `https://perkins.com/en_GB/…` and
+  `https://perkins.com/zh_CN/…` — the `perkins` segment disappears, the locale
+  stays. Source locale casing (`en_GB`) is normalized to the folder form
+  (`en-gb`) on import, same as `en_US` → `en-us`.
+- **Nav/footer fragments are per-locale** (different language + links), so each
+  locale has its own `nav`/`footer` under the locale folder. `brandRoot()`
+  returns the brand base; append the active locale segment to fetch the right
+  fragment (e.g. `${brandRoot()}/${locale}/nav`).
+- **Tokens are per-brand, not per-locale** — `tokens-perkins.css` themes all
+  Perkins locales; locale changes content/language, not the brand skin.
+- **Single-locale brands** (Tangent, Turner) are just the degenerate case with
+  one locale (`en-us`) — the layout above is the general form.
+
 ## Clean URLs — how the `/content` and brand folders disappear
 
 There is **no Sling / dispatcher rewrite** in Edge Delivery. The URL path maps
@@ -83,9 +115,12 @@ must list the real domains.
 
 ## Adding a new brand
 
-1. Author content under `content/<new-brand>/…` (+ `nav.plain.html`,
-   `footer.plain.html`, `images/`).
-2. Create `styles/tokens-<new-brand>.css` (copy an existing one, change values).
+1. Author content under `content/<new-brand>/…`. For a single-locale brand use
+   `en-us.plain.html` + `en-us/…` + `nav`/`footer`; for a **multi-locale** brand
+   nest each locale (`en-gb/…`, `zh-cn/…`) with its own per-locale `nav`/`footer`
+   (see "Multi-locale brands" above).
+2. Create `styles/tokens-<new-brand>.css` (copy an existing one, change values) —
+   one token file per brand, shared across its locales.
 3. Add the slug to `BRANDS` and a hostname rule to `BRAND_HOSTS` in
    `scripts/brand.js`.
 4. Create the brand's EDS site at tools.aem.live with `/` ⇒ `/<new-brand>`

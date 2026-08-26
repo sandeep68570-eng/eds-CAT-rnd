@@ -103,6 +103,13 @@ The report must contain:
 End the report with: *"Approve to proceed, or adjust the classification."* Only
 after approval do you build importers / run the import.
 
+> **The report / structure audit is a per-migration OUTPUT, not an input.**
+> Generate it fresh for each site from that site's pages — do NOT copy a prior
+> migration's audit (e.g. this repo's `template-audit.md`) as a starting input.
+> The durable *inputs* are the rules in this doc, the kickoff spec, and the
+> block-signature registry; catalogs/audits/importers/content are *outputs* each
+> migration produces. See [`migration-workflow.md`](./migration-workflow.md).
+
 ## 1c. What "template" means in EDS (and do we need `tools/`?)
 
 **EDS has no server-side template engine** — there are no editable templates and
