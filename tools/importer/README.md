@@ -44,3 +44,11 @@ Never silently create a template.
 Survey existing templates, blocks, parsers, and transformers first. Only create
 a new block when no existing one covers the structure; never duplicate a block
 per brand.
+
+**Consult `block-signatures.json` first.** It maps source-markup classes →
+block (+ variant), so block reuse is a deterministic lookup rather than a guess.
+A matched signature = reuse that block/variant; no match = new-block candidate
+(flag in the report). Signatures qualify the block family; the per-page
+`instances` selector still addresses the region. One block, one name — variations
+are variants (`Hero (media)`, `Cards (promo)`), never separate blocks. See
+`../../docs/migration-conventions.md` §1d–1e and `../../docs/migration-kickoff.md`.

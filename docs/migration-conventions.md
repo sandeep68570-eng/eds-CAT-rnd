@@ -140,6 +140,48 @@ at scale. Drop `tools/` only when authoring fresh or using the hosted agent.
 > tracks *page types*, not *pages*: a single `turner-product-detail` script
 > already covers multiple product URLs; add 1,000 more and it stays one script.
 
+## 1d. Blocks & variants — one block, one name (folding, operationalized)
+
+**A block has ONE name and ONE folder everywhere** — repo (`blocks/hero/`), the
+DA table (authored as `Hero`), the importer, and the catalog. Variations are
+**variants**, expressed as the block's parenthetical second word — never a
+separate block:
+
+| Family | Block | Authored in DA | Variants |
+|--------|-------|----------------|----------|
+| Hero | `hero` | `Hero`, `Hero (media)`, `Hero (page)`, `Hero (carousel)` | media / page / carousel / cta |
+| Cards | `cards` | `Cards (promo)`, `Cards (feature)`, `Cards (resource)` | promo / feature / resource |
+| Teaser bands | `columns-media` | `Columns-media` | checkerboard / full-width (already flexible) |
+
+- EDS turns `Hero (media)` into `class="hero media"`; `hero.js`/`hero.css` branch
+  on the variant. **The block name stays `hero`.**
+- A source `hero-carousel` maps to the **`hero`** block with the `carousel`
+  variant — **not** a new `hero-carousel` block.
+- **Fold rule:** prefer one flexible block per family (content-driven + variants).
+  Create a new block only when a region has no existing family. Folding candidates
+  found in this repo: `hero-media`+`page-hero` → `hero`; `cards-promo`+
+  `cards-feature`+`resource-cards` → `cards` (the card JS is already duplicated
+  verbatim). `columns-media` is the reference for an already-flexible block.
+
+## 1e. Block-signature registry (deterministic reuse detection)
+
+`tools/importer/block-signatures.json` maps **source-markup signatures → block
+(+ variant)**. It makes "does this page reuse block X?" a **lookup**, not a guess:
+
+- At scope time, scan each source region for a signature. A match → **reuse**
+  that block + variant. No match → **new-block candidate** (flag in the report).
+- **Signatures QUALIFY the family; they do not ADDRESS the region** — the
+  per-page `instances` selector (positional `:nth-of-type` path) is still captured
+  per page. (Two selectors, two jobs: `instances` = *locate on the page*; a
+  parser's inner `querySelectorAll` = *extract the block's items*.)
+- **A matched family ≠ behavior parity:** a genuinely new variant (e.g. a real
+  carousel) may still need block work even though it maps to an existing family.
+- Onboarding a same-platform brand becomes mostly **adding signatures**, not
+  blocks. Extend the registry with any source-class→block mappings you know.
+
+This is the operational form of "reuse before create" and the folding rules
+above — consult it first during scoping.
+
 ## 2. MSM multi-brand setup (new brand onboarding)
 
 - Content lives per brand at `/content/{brand}/{locale}/…`. Each brand maps its
