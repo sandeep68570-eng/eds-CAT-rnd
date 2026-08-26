@@ -34,7 +34,11 @@ All detail in [`migration-conventions.md`](./migration-conventions.md):
 - **MSM multi-brand + theming** (§2, §4) and [`msm-multi-brand.md`](./msm-multi-brand.md) — per-brand folders, `brand.js` (`BRANDS`/`BRAND_HOSTS`), `tokens-{brand}.css`, fragment link normalization.
 - **SEO / a11y / performance / responsive / pre-PR** (§5, §F, §G, §H) — incl. the staging-`noindex` cap being host-imposed.
 - **Deploy model + gotchas** (§A, §7) — code ships via git→main, content via DA; DM images via `scripts/dm.js`; block CSS never defines `:root` tokens.
-- **Existing template audit** — [`template-audit.md`](./template-audit.md) (the 10 current templates map to ~3 structures).
+- **Rebuild specs** — [`rebuild-specs.md`](./rebuild-specs.md): if the repo is docs-only (no code carried), reconstruct `brand.js`, `loadBrandTokens`, `dm.js`/`__dmRender__`, and folded `hero`/`cards` from these self-contained build specs.
+
+> Note: a **structure audit / Template Reuse Report is a per-migration OUTPUT** you
+> generate for each site — not an input to copy. (This repo's `template-audit.md`
+> is one such output, kept as history; don't carry it into a fresh repo.)
 
 ## 4. Blocks & variants — the naming rule (important)
 

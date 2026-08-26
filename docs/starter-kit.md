@@ -21,18 +21,26 @@ apply to any source.
 | `docs/migration-conventions.md` | Methodology §1a–1e (structure-first, report-first, template=EDS, folding, registry) + corrections A–H + reference links | universal (corrections C-cleanup are [DEG]) |
 | `docs/migration-workflow.md` | The repeatable pipeline, commands, clean-URL model, token contract, manual steps | universal |
 | `docs/msm-multi-brand.md` | Brand folders, clean URLs, theming, **multi-locale (en_GB + zh_CN) example** | universal |
+| `docs/rebuild-specs.md` | **Build specs** to reconstruct the code mechanics (brand.js, loadBrandTokens, dm.js/`__dmRender__`, folded hero/cards) from docs alone | universal (§3 is [DEG]) |
 
-### Reusable code
-| File / dir | What it gives you | Scope |
-|------------|-------------------|-------|
-| `scripts/brand.js` | Brand resolution (`getBrand`, `BRAND_HOSTS`), `brandRoot()`, `normalizeBrandLinks()` | universal |
-| `scripts/dm.js` | DM/Scene7 `optimizedPicture` wrapper (keeps `aem.js` pristine) | [DEG] (Scene7) |
-| `scripts/scripts.js` additions | `loadBrandTokens()`, breadcrumb auto-block, DM auto-block (`__dmRender__`), `applySectionMetadata()` | mixed — port the helpers, re-wire into the new repo's `scripts.js` |
-| `blocks/hero/` | Flexible hero (media/page variants; go-forward folded block) | universal |
-| `blocks/cards/` | Folded cards (promo/feature/resource variants) | universal |
-| `blocks/columns-media/` | Flexible teaser bands (checkerboard/full-width) | universal (parser is [DEG]) |
-| `blocks/header/`, `blocks/footer/`, `blocks/breadcrumb/`, `blocks/fragment/` | Brand-agnostic chrome (fetch `${brandRoot()}/nav|footer`) | universal |
-| `styles/brand.css` + a `styles/tokens-<brand>.css` template | Token theming (values only; no `:root` in block CSS) | universal |
+### Reusable code — DO NOT copy code files; REBUILD from specs
+
+Per the docs-only decision, **no `.js`/`.css` files are carried.** The
+load-bearing mechanics are reconstructed in the new repo from
+[`rebuild-specs.md`](./rebuild-specs.md) (minimal snippets + wiring):
+
+| Mechanic | Rebuild spec |
+|----------|--------------|
+| `scripts/brand.js` — brand/locale resolution, `brandRoot`, `normalizeBrandLinks` | rebuild-specs §1 |
+| `loadBrandTokens()` + token load order + token contract | rebuild-specs §2 |
+| DM/Scene7 `dm.js` wrapper + `__dmRender__` auto-block + eslint | rebuild-specs §3 [DEG] |
+| Folded blocks `hero` / `cards` (variants); `columns-media` pattern | rebuild-specs §4 |
+| Chrome (`header`/`footer`/`breadcrumb`/`fragment`), token files (`brand.css` + `tokens-<brand>.css`) | rebuild-specs §1–§4 + workflow token contract |
+
+> **Optional byte-fidelity exception:** if you want an exact copy of the trickiest
+> piece rather than a rebuild, carry just `scripts/dm.js` (the Scene7 `$`-param
+> handling is the most error-prone to reconstruct). Everything else rebuilds
+> cleanly from specs.
 
 ### Importer inputs (`tools/importer/`) — starts nearly empty
 | File | What it gives you | Scope |
@@ -76,26 +84,30 @@ These are records/artifacts of *this* migration, not reusable inputs:
 
 ---
 
-## 4. Optional rename
+## 4. Naming note (when transformers get generated)
 
-The DEG transformers are named `tangentenergy-*` (cleanup/links/dm-images/
-sections) but are **brand-agnostic**. In a fresh repo, consider renaming to
-`deg-*` for clarity. Not required — they work as-is.
+The DEG transformers this migration generated were named `tangentenergy-*`
+(cleanup/links/dm-images/sections) but are **brand-agnostic**. Since nothing is
+carried, name them `deg-*` from the start in the new repo for clarity.
 
 ---
 
 ## 5. Day-1 in the new repo (migrate N brands, best-practice)
 
-1. Drop in the CARRY files (§1); verify prerequisites (§3).
-2. Read [`migration-kickoff.md`](./migration-kickoff.md); provide inputs (brand
+1. Drop in the CARRY **docs** (§1); verify prerequisites (§3).
+2. **Reconstruct the mechanics** from [`rebuild-specs.md`](./rebuild-specs.md):
+   `scripts/brand.js`, `loadBrandTokens()` + token load order, DM `dm.js` +
+   `__dmRender__` auto-block (only if the source uses DM/Scene7), the folded
+   `hero`/`cards` blocks, and `styles/brand.css` + a `tokens-<brand>.css`.
+3. Read [`migration-kickoff.md`](./migration-kickoff.md); provide inputs (brand
    slug, domains, locales, URL list/sitemap, any known source-class→block
    mappings, theme source).
-3. For each brand/site: **scope → Template Reuse Report → get approval** (§1b),
+4. For each brand/site: **scope → Template Reuse Report → get approval** (§1b),
    then generate importers (reusing blocks via the registry) → import → theme →
    nav/footer → verify (both viewports) → pre-PR checklist.
-4. Add the brand to `BRANDS`/`BRAND_HOSTS`, create `tokens-<brand>.css`, and set
+5. Add the brand to `BRANDS`/`BRAND_HOSTS`, create `tokens-<brand>.css`, and set
    the tools.aem.live folder mapping + domain.
-5. New blocks only when a region has no signature match and no existing family —
+6. New blocks only when a region has no signature match and no existing family —
    and only after report approval; add its signature to the registry afterward.
 
 Result: template count ≈ distinct **structures**; new blocks ≈ 0 for a

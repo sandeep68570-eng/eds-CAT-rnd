@@ -9,9 +9,16 @@ two parts:
 2. **Corrections (A–D)** — hard-won specific fixes with the *why* behind each,
    so they are not silently undone.
 
-Companion docs: [`migration-playbook.md`](./migration-playbook.md) (end-to-end
-workflow, commands, file map) and [`msm-multi-brand.md`](./msm-multi-brand.md)
-(brand folders, clean URLs, theming). Don't duplicate those — link to them.
+Companion docs: [`migration-workflow.md`](./migration-workflow.md) (repeatable
+pipeline, commands, clean-URL model, token contract) and
+[`msm-multi-brand.md`](./msm-multi-brand.md) (brand folders, clean URLs,
+multi-locale, theming). Don't duplicate those — link to them.
+
+> **Code references below** (`scripts/brand.js`, `scripts/dm.js`,
+> `loadBrandTokens`, `normalizeBrandLinks`, folded blocks) describe the working
+> implementation **in this repo**. In a fresh docs-only starter repo those files
+> won't exist yet — **rebuild them from [`rebuild-specs.md`](./rebuild-specs.md)**,
+> which turns each of these references into a self-contained build spec.
 
 ---
 
