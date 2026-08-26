@@ -176,6 +176,10 @@ separate block:
   found in this repo: `hero-media`+`page-hero` → `hero`; `cards-promo`+
   `cards-feature`+`resource-cards` → `cards` (the card JS is already duplicated
   verbatim). `columns-media` is the reference for an already-flexible block.
+- **Authoring & discovery:** authors write the variant in DA as `Block (variant)`
+  (→ `class="block variant"`); the catalog of variants per block and how the DA
+  label maps to code live in [`block-variants.md`](./block-variants.md). When you
+  add a variant in code, add it there and to the signature registry.
 
 ## 1e. Block-signature registry (deterministic reuse detection)
 
@@ -452,12 +456,58 @@ Run before opening or updating a PR:
 - [ ] Preview the changed pages in **both** viewports (desktop ~1440 and mobile
       ~375) — nav/footer, hero, cards.
 - [ ] Compare against the original site for content/visual parity.
+- [ ] **Section-fidelity diff (see §I):** per section, confirm the migrated page
+      kept its **heading + intro/default content**; each region uses the
+      **correct block** (shape matches the source); each block captured **all its
+      parts** (heading / subheading / CTA / media); and any look difference is a
+      **variant** styled to match — checked in **both** viewports.
 - [ ] The PR description includes a working
       `{branch}--{repo}--{owner}.aem.page/{path}` preview link (AGENTS.md
       requires it; a PR without one is rejected).
 - [ ] Confirm code vs content: if a page looks wrong, check whether the **code**
       is merged to `main` *and* the **content** is published to DA (separate
       tracks — see Section A / Methodology 7).
+
+## I. Section & block fidelity (match the source — or better)
+
+Migration must reproduce what the source renders. Four generic rules prevent the
+most common fidelity defects. All are checked in the pre-PR diff (§H).
+
+1. **Keep each section's default content.** A section is
+   *default content (heading + intro) + block(s)*. A section mapping that lists
+   blocks but leaves default content uncaptured **silently drops the section's
+   title/intro copy**. Always capture the heading + lead text that sit around the
+   blocks, not just the blocks.
+   *Generic example:* a section with an `H2` + intro paragraph above a row of
+   cards must keep that `H2` + paragraph as default content above the block.
+
+2. **Select the correct block (match the STRUCTURE/shape).** Map a source region
+   to the block whose layout matches it — not merely one that holds the same
+   content. Picking a structurally-different block is a **wrong-block-selection**
+   defect.
+   *Generic example:* a promo region that is an image with a title, description,
+   and a call-to-action button (as one unit) is a **hero/teaser-style** block —
+   **not** a side-by-side two-column block. Use the block-signature registry
+   (§1e); when unsure, choose the block that renders like the source.
+
+3. **Element completeness.** A block must capture **every part present in the
+   source region** — heading, subheading/description, **CTA/button (with its
+   link)**, and media. A dropped CTA, missing description, or omitted image is a
+   fidelity defect — fix it in the parser, don't ship the incomplete block.
+   *Generic example:* a teaser with image + title + description + linked button
+   must import as a block containing all four; if the button/link is dropped, the
+   parse is incomplete.
+
+4. **Visual differences are VARIANTS, not new blocks.** When a region shares a
+   block's structure but *looks* different (width/containment, background,
+   alignment), express it as a **CSS variant** of the shared block — add a variant
+   to the signature registry (§1e) and port the source's **computed styles** into
+   the variant's scope (`.block.variant`). Never fork a new block for a look; a
+   new block is only for a new *structure*. See
+   [`block-variants.md`](./block-variants.md) for authoring/discovery.
+   *Generic example:* a full-bleed hero and a centered, max-width hero are the
+   same `hero` block with a `contained` variant — `.hero.contained { max-width: …;
+   margin: 0 auto; }` — not two blocks.
 
 ## Reference docs (authoritative EDS guidance)
 

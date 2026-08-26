@@ -22,6 +22,7 @@ apply to any source.
 | `docs/migration-workflow.md` | The repeatable pipeline, commands, clean-URL model, token contract, manual steps | universal |
 | `docs/msm-multi-brand.md` | Brand folders, clean URLs, theming, **multi-locale (en_GB + zh_CN) example** | universal |
 | `docs/rebuild-specs.md` | **Build specs** to reconstruct the code mechanics (brand.js, loadBrandTokens, dm.js/`__dmRender__`, folded hero/cards) from docs alone | universal (§3 is [DEG]) |
+| `docs/block-variants.md` | Variant authoring (`Block (variant)` in DA → code) + the per-block variant catalog (authors + devs) | universal |
 
 ### Reusable code — DO NOT copy code files; REBUILD from specs
 

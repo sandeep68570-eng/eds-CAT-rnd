@@ -1,43 +1,47 @@
-Honest answer up front: **docs + AGENTS.md can be enough — but only if the docs are written as *build specs*, not as *pointers to code that no longer exists*.** Right now several of them say things like "see `scripts/dm.js`" or "`loadBrandTokens()` injects…" — that's descriptive of code you'd be leaving behind. If you carry no code, those references dangle, and a fresh session would **regenerate** the mechanics rather than copy them. Whether that reliably reproduces what we built depends on two things:
+# Section Fidelity + Variant Authoring/Discovery Docs (docs-only)
 
-**What regenerates reliably from rules alone:**
-- **component folding** — it's a *decision rule* (structure-first, one block + variants, block-signatures registry). Docs carry this well; the agent applies it.
-- **`tools/importer/*`** — parsers/transformers/import-scripts are **generated during migration anyway** (that's the whole model). Docs steer them; nothing to carry.
-- **token theming / `loadBrandTokens`** — the token contract + loading mechanism are documented; an agent can rebuild it, though the exact wiring is safer with a snippet.
+## Answering your DA-authoring question first (this shapes the doc)
 
-**What is risky to "just regenerate" from prose:**
-- **`__dmRender__` / `dm.js` wrapper** — this is a specific pattern (wrapper delegates DM URLs to `window.__dmRender__`, auto-block installed in `buildAutoBlocks`, eslint allow-list, aem.js kept pristine). Our current docs describe it *conceptually*, not as a build spec. A fresh session could get it subtly wrong. (Note: in a session *with the migration skills*, the DM auto-block is installed **by the skill from its own reference** — so it'd regenerate that way, not from our docs. If you're relying purely on docs, you need the spec inlined.)
+**How authors author a variant in DA, and how it maps to code:**
+- In a Document Authoring table, the **block name cell** carries the variant in **parentheses**: the author types **`Hero (contained)`** (or `Cards (promo)`, etc.) instead of just `Hero`.
+- EDS's block loader parses that: the first word → block folder/name (`hero`), and each additional word inside the parens → a **CSS class token**. `Hero (contained)` renders `<div class="hero contained">`.
+- The block's **`hero.js`** reads `block.classList` (e.g. `block.classList.contains('contained')`) to branch behavior, and **`hero.css`** styles `.hero.contained { … }`. So the parenthetical label **is** the mapping — author text → class → JS/CSS branch. No separate config.
+- Multiple variants combine: `Hero (contained, dark)` → `class="hero contained dark"`.
 
-So the crux: to make **docs genuinely self-sufficient**, the load-bearing mechanics need small **"how to rebuild" spec sections** (minimal code snippets + wiring) rather than references to files you're not carrying. Let me confirm which way you want it, since it changes what I write.# Make the Docs Self-Sufficient Build Specs (no code carried)
+**Where variant knowledge lives (the real gap you spotted):** today variants are only discoverable by reading block code — authors can't know they exist. The fix is a **variant catalog** doc: for each block, the list of supported variants + what each does + the exact DA label to type. That's the single source authors *and* developers consult.
 
-## Decision locked in
-- **Docs must be prescriptive build specs** — minimal code snippets + wiring for each load-bearing mechanic, so a fresh session reproduces them from **docs alone**. De-reference "see `scripts/x.js`" pointers into self-contained specs.
-- **Same migration skills assumed present** in the new session → docs steer *decisions*; skills provide *generic mechanics*; **but** the migration-specific mechanics (DM wrapper, token loader, folded blocks, brand resolution) are **not** guaranteed by generic skills, so those get full specs. Belt-and-suspenders: even with skills, the specs make reproduction deterministic.
+## What I'll add (docs-only, generic — no page/brand names)
 
-## Honest verdict on "will docs be enough?"
-**Yes — once they're build specs, not pointers.** The gap today is that the docs *describe* the code ("`loadBrandTokens()` injects…", "see `scripts/dm.js`"). Carrying no code means those must become **"here's how to build it"** with the actual snippet. I'll add a new **"Rebuild specs"** section covering exactly the pieces you named.
+1. **§I Section fidelity** (as agreed):
+   - default content per section (keep heading/intro),
+   - **block-shape / correct-block-selection** rule — pick the block whose *structure* matches the source region (a region with image+title+description+**button** is a hero/teaser-style block, **not** a two-column block). This directly covers your "Contact Us… should've been hero, not columns-media = wrong block selection" — generalized.
+   - **element-completeness** rule with a **generic example**.
+   - **visual variant** rule (look difference = CSS variant; port source computed styles into `.block.variant`).
 
-## What I'll add — a "Rebuild specs" appendix (in `migration-conventions.md` or a new `docs/rebuild-specs.md`)
+2. **New `docs/block-variants.md` — the variant catalog** (authors + developers):
+   - Per block: variant name, what it changes, **DA authoring label** (`Block (variant)`), and the class it produces.
+   - A short **"how variant authoring works in DA"** intro (the mapping above).
+   - Seeded with the current folded families (`hero`: default/media/page/contained…; `cards`: promo/feature/resource; `columns-media`) — marked which are built vs. planned.
+   - Rule: **when a new variant is added in code, add it here** (and to the block-signature registry) so it's discoverable.
 
-Each = purpose + minimal code + where it wires in:
+3. **Wiring:** `migration-conventions.md` §1d (folding) + kickoff link to `block-variants.md`; §H pre-PR gains element-completeness + correct-block-selection + variant-styling checks; AGENTS.md pointer to the variant catalog.
 
-1. **`scripts/brand.js`** — `BRANDS`/`DEFAULT_BRAND`/`BRAND_HOSTS`, `getBrand()` (hostname→path→default), `brandRoot()`, `normalizeBrandLinks()` (the `/content/{brand}` → env-correct rewrite). Full small module — it's compact and load-bearing.
-2. **`loadBrandTokens()`** — the eager-phase snippet that injects `/styles/tokens-{brand}.css` (skips default), + the `styles.css`→`brand.css`→token-file load order, + the token contract list.
-3. **DM/Scene7 `dm.js` + `__dmRender__`** — the wrapper (`optimizedPicture` delegates DM URLs to `window.__dmRender__`, else vendored `createOptimizedPicture`), the auto-block registered in `buildAutoBlocks(main)`, the `.eslintrc` `no-underscore-dangle` allow-list, and the **"never edit `aem.js`"** rule. This is the riskiest-to-regenerate piece → most detailed spec.
-4. **Component folding (hero, cards)** — the variant pattern: one block folder, `Block (variant)` authored in DA → `class="block variant"`, JS branches on variant. Skeleton `hero.js`/`cards.js` decorate structure + the CSS-scoping rule (`.block.variant`).
-5. **`tools/importer/`** — restate: ships only `block-signatures.json` + `README.md`; parsers/transformers/import-scripts generated per migration (already covered; cross-link).
-6. **Prereqs the boilerplate must have** — `buildAutoBlocks(main)` hook, eslint allow-list, `.hlxignore tools/*`, pristine `aem.js`.
+## Element-completeness rule (generic example, as you asked)
+> *A block must capture every part the source region contains. Example: a promo/teaser region with an image, a title, a description, and a call-to-action button (linked) must import as a block that includes all four — image, heading, description, and the CTA link. If the button/link, description, or media is dropped, the block is incomplete — a fidelity defect to fix in the parser, not to ship.*
 
 ## Checklist
-- [ ] Add **"Rebuild specs"** (new `docs/rebuild-specs.md`, linked from kickoff + starter-kit) with specs 1–6 above — minimal code + wiring, self-contained
-- [ ] **De-reference dangling pointers:** update `migration-conventions.md`, `migration-workflow.md`, `starter-kit.md` so "see `scripts/dm.js`/`brand.js`" become "build per `rebuild-specs.md` §X" (since no code is carried)
-- [ ] Update `starter-kit.md` **CARRY** list: **docs only** — remove the code-file rows, replace with "rebuild from `rebuild-specs.md`"; keep `block-signatures.json` (data, not code) + importer README
-- [ ] Keep the "same skills assumed" note, but state specs make it skill-independent for the load-bearing pieces
-- [ ] `npm run lint` (docs only → green); stage for your push
+- [ ] Add **§I Section fidelity** to `migration-conventions.md`: default content + **correct-block-selection (shape match)** + **element-completeness (generic example)** + **visual-variant** rules — all generic
+- [ ] Create **`docs/block-variants.md`**: how DA variant authoring maps to code (`Block (variant)` → class → JS/CSS), + per-block variant catalog (seed hero/cards/columns-media), + "add new variants here" rule
+- [ ] Link `block-variants.md` from `migration-conventions.md` §1d, `migration-kickoff.md`, and `AGENTS.md`; add it to the starter-kit CARRY list
+- [ ] Strengthen §H pre-PR checklist: per-block **element completeness + correct block selection + variant styling** vs source, both viewports
+- [ ] Note in kickoff: Template Reuse Report records per-section default content, block **shape/selection**, and **variant**
+- [ ] Keep all phrasing generic/forward-looking — no page/brand specifics
+- [ ] `npm run lint` (docs-only → green); stage for your push
+- [ ] (Deferred) any live-page re-import (e.g. re-select hero for a mis-mapped section, restore a dropped CTA) — separate approved step
 
 ## Notes
-- **Result:** the carried set is **pure docs + `block-signatures.json`** — no `.js`/`.css` files. A fresh session reads kickoff → conventions → rebuild-specs and **reconstructs** `brand.js`, `loadBrandTokens`, `dm.js`/`__dmRender__`, and the folded blocks, then migrates with structure-first + registry + report-first.
-- **One caveat I won't hide:** hand-rebuilt code can drift from what we have here (e.g. a subtle DM-param edge case). Specs minimize that, but "docs-only" is inherently a reconstruction, not a copy — if you later want byte-fidelity for the trickiest piece (`dm.js`), carrying that one file is the safer exception. I'll flag it in the doc, your call.
-- Docs-only; no code/content/re-import. Existing code stays in *this* repo.
+- **Docs-only, zero risk** — no content/import changes; live pages with the wrong block / dropped button stay as-is until you approve a re-import; docs prevent recurrence.
+- The **variant catalog** (`block-variants.md`) is the durable answer to "how do authors/devs know variants exist and how to author them" — it's the missing discoverability layer, carried in the starter kit.
+- "Wrong block selection" is folded into §I as **correct-block-selection (shape match)** — the same rule that says match structure, generalized.
 
-> **Prepared in Plan mode — no files changed.** Approve + switch to Execute and I'll write `docs/rebuild-specs.md` (build specs for brand.js, loadBrandTokens, dm.js/__dmRender__, folded hero/cards, prereqs), de-reference the code pointers in the other docs, update `starter-kit.md` to a **docs-only** CARRY list, lint, and stage.
+> **Execution requires Execute mode.** Approve + switch to Execute and I'll: add §I (fidelity + correct-block-selection + element-completeness generic example + visual-variant), create `docs/block-variants.md` (DA authoring→code mapping + variant catalog), wire the links + §H checklist + kickoff/AGENTS/starter-kit pointers, lint, and stage. Live-page re-imports remain deferred.
